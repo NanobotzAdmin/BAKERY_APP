@@ -1,0 +1,269 @@
+@php
+
+    $privilageId = \DB::table('pm_interfaces')
+        ->select('pm_interfaces.id AS pageId', 'pm_interface_topic.id AS grupId')
+        ->join('pm_interface_topic', 'pm_interfaces.pm_interface_topic_id', '=', 'pm_interface_topic.id')
+        ->where('pm_interfaces.path', 'adminSalesReport')
+        ->first();
+
+@endphp
+
+
+@extends('layout', ['pageId' => $privilageId->pageId, 'grupId' => $privilageId->grupId])
+
+@section('content')
+
+<style>
+    /*placeholder css*/
+    #dateFrom::placeholder, #dateTo::placeholder {
+        font-size: 11px;
+        color: #bfbfbf;
+        opacity: 0.7;
+    }
+</style>
+
+    <div class="row">
+        <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="col-sm-12">
+            <h2 class="font-bold">Sales Report</h2>
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Search Criteria</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <div class="form-group" id="data_1">
+                                <label>Date From</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input
+                                        type="text" class="form-control form-control-sm" id="dateFrom" maxlength="10" oninput="this.value = this.value.replace(/[^0-9/]/g, '').replace(/(\..*?)\..*/g, '$1');" placeholder="MM/DD/YYYY" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group" id="data_1">
+                                <label>Date To</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input
+                                        type="text" class="form-control form-control-sm" id="dateTo" maxlength="10" oninput="this.value = this.value.replace(/[^0-9/]/g, '').replace(/(\..*?)\..*/g, '$1');" placeholder="MM/DD/YYYY" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Invoice Status</label>
+                                <select class="select2_demo_3 form-control" id="invoiceStatus">
+                                    <option value="99">-- Select One --</option>
+                                    <option value="0">Pending</option>
+                                    <option value="1">Completed</option>
+                                    {{-- <option value="3">Rejected</option> --}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Invoice Type</label>
+                                <select class="select2_demo_3 form-control" id="invoiceType">
+                                    <option value="0">-- Select One --</option>
+                                    <option value="1">Credit</option>
+                                    <option value="2">Cash</option>
+                                    <option value="3">Cheque</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Customer</label>
+                                <select class="select2_demo_3 form-control" id="customer">
+                                    <option value="0">-- Select One --</option>
+                                    @foreach ($customers as $customer)
+                                        <option value="{{ $customer->id }}">{{ $customer->customer_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Sales Representative</label>
+                                <select class="select2_demo_3 form-control" id="salesRep">
+                                    @if (session('user_type') == '3')
+                                        <?php
+                                        $salesRep2 = App\SaleRep::where('um_user_id', session('logged_user_id'))->first();
+
+                                        ?>
+                                        <option value="{{ $salesRep2->id }}">{{ $salesRep2->sales_rep_name }}</option>
+                                    @else
+                                        <option value="0">-- Select One --</option>
+                                        @foreach ($salesRep as $salesReps)
+                                            <option value="{{ $salesReps->id }}">{{ $salesReps->sales_rep_name }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Vehicle</label>
+                                <select class="select2_demo_3 form-control" id="vehicle">
+                                    <option value="0">-- Select One --</option>
+                                    @foreach ($vehicles as $vehicle)
+                                        <option value="{{ $vehicle->id }}">{{ $vehicle->reg_number }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                @if (session('user_type') == '3')
+                                    <div style="display: none">
+                                        <select class="select2_demo_3 form-control" id="drivers">
+                                            <option value="0">-- Select One --</option>
+
+                                        </select>
+                                    </div>
+                                @else
+                                    <label>Driver</label>
+                                    <select class="select2_demo_3 form-control" id="drivers">
+                                        <option value="0">-- Select One --</option>
+                                        @foreach ($drivers as $driver)
+                                            <option value="{{ $driver->id }}">{{ $driver->driver_name }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+
+                            </div>
+                        </div>
+                    </div>
+                    {{-- <div class="col-lg-12 "> --}}
+                    <button type="button" class="btn btn-info btn-sm pull-right" onclick="getSalesReport()"><i class="fa fa-search" aria-hidden="true"></i> &nbsp; Search</button>
+                    {{-- </div> --}}
+                    <br><br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" id="loadSalesReportDetails">
+        {{-- Load data here with Ajax - SALES REPORT DETAILS --}}
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="updateVehical" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" id="vehicleLoadDataModal">
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="invoiceNo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLabel">Invoice Details</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id='InvoiceDataModal'>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{-- <button type="button" class="btn btn-primary">Save changes</button> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="invoiceHistoryPayment" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLabel">Invoice Payment History</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id='InvoicePaymentHistory'>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{-- <button type="button" class="btn btn-primary">Save changes</button> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('footer')
+    <script>
+        $(".select2_demo_3").select2({
+            placeholder: "Select a state",
+            allowClear: true
+        });
+
+        var mem = $('#data_1 .input-group.date').datepicker({
+            todayBtn: "linked",
+            keyboardNavigation: false,
+            forceParse: false,
+            calendarWeeks: true,
+            autoclose: true
+        });
+
+
+        function getSalesReport() {
+            var csrf_token = $("#csrf_token").val();
+            var customer = $("#customer").val();
+            var invoiceType = $("#invoiceType").val();
+            var invoiceStatus = $("#invoiceStatus").val();
+            var dateFrom = $("#dateFrom").val();
+            var dateTo = $("#dateTo").val();
+            var vehicle = $("#vehicle").val();
+            var salesRep = $("#salesRep").val();
+            var drivers = $("#drivers").val();
+
+            jQuery.ajax({
+                url: "{{ url('/getSalesReport') }}",
+                type: "POST",
+                data: {
+                    "_token": csrf_token,
+                    "customer": customer,
+                    "invoiceType": invoiceType,
+                    "invoiceStatus": invoiceStatus,
+                    "dateFrom": dateFrom,
+                    "dateTo": dateTo,
+                    "vehicle": vehicle,
+                    "salesRep": salesRep,
+                    "drivers": drivers,
+                },
+                beforeSend: function() {
+                    showLder();
+                },
+                complete: function() {},
+                error: function(data) {},
+                success: function(data) {
+                    hideLder();
+                    $('#loadSalesReportDetails').html(data);
+                }
+            });
+        }
+    </script>
+@endsection
