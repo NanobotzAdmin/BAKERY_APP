@@ -7,7 +7,6 @@
     "require": {
         "php": "^8.0",
         "fideloper/proxy": "^4.4",
-        "krlove/eloquent-model-generator": "^2.0",
         "laravel/framework": "^9.0",
         "laravel/tinker": "^2.7",
         "nunomaduro/collision": "^6.0"
