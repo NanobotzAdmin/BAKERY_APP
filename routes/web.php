@@ -143,6 +143,8 @@ Route::post('/deleteDelivery', 'VehicleManagementController@deleteDelivery')->mi
 ///////////////////////////////////////////////// PRODUCT CONTROLLER BEGIN HERE //////////////////////////////////////////////////////////////////////////////////////////////////
 // Category
 Route::get('/adminProductManagement', 'ProductManagementController@adminProductManagementIndex')->middleware('userAuth:adminProductManagement');
+Route::get('/adminProductRegistration', 'ProductManagementController@adminProductRegistrationIndex')->middleware('userAuth:adminProductRegistration');
+Route::get('/adminCategoryVariationManagement', 'ProductManagementController@adminCategoryVariationManagementIndex')->middleware('userAuth:adminCategoryVariationManagement');
 Route::post('/saveMainCategory', 'ProductManagementController@saveMainCategory')->middleware('loggedchecked:saveMainCategory');
 Route::post('/loadCategoryDataToModal', 'ProductManagementController@loadCategoryDataToModal')->middleware('loggedchecked:loadCategoryDataToModal');
 Route::post('/updateMainCategory', 'ProductManagementController@updateMainCategory')->middleware('loggedchecked:updateMainCategory');
@@ -152,6 +154,20 @@ Route::post('/loadProductDetails', 'ProductManagementController@loadProductDetai
 Route::post('/saveSubCategory', 'ProductManagementController@saveSubCategory')->middleware('loggedchecked:saveSubCategory');
 Route::post('/updateSubCategory', 'ProductManagementController@updateSubCategory')->middleware('loggedchecked:updateSubCategory');
 Route::post('/subCatogoryStatusChange', 'ProductManagementController@subCatogoryStatusChange')->middleware('loggedchecked:subCatogoryStatusChange');
+// Variations
+Route::post('/saveVariation', 'ProductManagementController@saveVariation')->middleware('loggedchecked:saveVariation');
+Route::post('/saveVariationValue', 'ProductManagementController@saveVariationValue')->middleware('loggedchecked:saveVariationValue');
+Route::post('/updateVariation', 'ProductManagementController@updateVariation')->middleware('loggedchecked:updateVariation');
+Route::post('/updateVariationValue', 'ProductManagementController@updateVariationValue')->middleware('loggedchecked:updateVariationValue');
+Route::post('/deleteVariation', 'ProductManagementController@deleteVariation')->middleware('loggedchecked:deleteVariation');
+Route::post('/deleteVariationValue', 'ProductManagementController@deleteVariationValue')->middleware('loggedchecked:deleteVariationValue');
+Route::post('/toggleVariationStatus', 'ProductManagementController@toggleVariationStatus')->middleware('loggedchecked:toggleVariationStatus');
+Route::post('/toggleVariationValueStatus', 'ProductManagementController@toggleVariationValueStatus')->middleware('loggedchecked:toggleVariationValueStatus');
+Route::post('/getVariationValues', 'ProductManagementController@getVariationValues')->middleware('loggedchecked:getVariationValues');
+Route::post('/getVariationValue', 'ProductManagementController@getVariationValue')->middleware('loggedchecked:getVariationValue');
+Route::post('/loadSubCategoriesByMainCategory', 'ProductManagementController@loadSubCategoriesByMainCategory')->middleware('loggedchecked:loadSubCategoriesByMainCategory');
+Route::post('/loadVariationValuesByVariation', 'ProductManagementController@loadVariationValuesByVariation')->middleware('loggedchecked:loadVariationValuesByVariation');
+Route::post('/saveProductItems', 'ProductManagementController@saveProductItems')->middleware('loggedchecked:saveProductItems');
 ///////////////////////////////////////////////// PRODUCT CONTROLLER END HERE ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////// SALES REP CONTROLLER BEGIN HERE ////////////////////////////////////////////////////////////////////////////////////////////////

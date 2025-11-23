@@ -17,7 +17,37 @@ class ProductManagementController extends Controller
         $MainCategory = MainCategory::all();
         $mainActiveCategory = MainCategory::where('is_active', STATIC_DATA_MODEL::$Active)->get();
         $subCategory = SubCategory::all();
-        return view('Products.category.manageproduct', compact('MainCategory', 'mainActiveCategory', 'subCategory'));
+        $productItems = \App\ProductItem::with(['mainCategory', 'subCategory', 'variation', 'variationValue'])->get();
+        return view('Products.category.manageproduct', compact('MainCategory', 'mainActiveCategory', 'subCategory', 'productItems'));
+    }
+
+    public function adminCategoryVariationManagementIndex()
+    {
+        $MainCategory = MainCategory::all();
+        $mainActiveCategory = MainCategory::where('is_active', STATIC_DATA_MODEL::$Active)->get();
+        $subCategory = SubCategory::all();
+        $variations = \App\Variation::with('variationValues')->get();
+        
+        // Get variation value types from STATIC_DATA_MODEL
+        $variationValueTypes = [
+            \App\STATIC_DATA_MODEL::$variationValueTypeL => 'L',
+            \App\STATIC_DATA_MODEL::$variationValueTypeML => 'ML',
+            \App\STATIC_DATA_MODEL::$variationValueTypeG => 'G',
+            \App\STATIC_DATA_MODEL::$variationValueTypeKG => 'KG'
+        ];
+        
+        return view('Products.category.categoryVariationManagement', compact('MainCategory', 'mainActiveCategory', 'subCategory', 'variations', 'variationValueTypes'));
+    }
+
+    public function adminProductRegistrationIndex()
+    {
+        $mainCategories = MainCategory::where('is_active', STATIC_DATA_MODEL::$Active)->get();
+        $productItemTypes = [
+            \App\STATIC_DATA_MODEL::$packed => 'Packed',
+            \App\STATIC_DATA_MODEL::$unpacked => 'Unpacked'
+        ];
+        $variations = \App\Variation::where('is_active', STATIC_DATA_MODEL::$Active)->get();
+        return view('Products.category.productRegistration', compact('mainCategories', 'productItemTypes', 'variations'));
     }
 
     /////////// SAVE MAIN CATEGORY //////////////////
@@ -71,7 +101,8 @@ class ProductManagementController extends Controller
         } else {
             $CategoryData = SubCategory::find($request->CategoryId);
         }
-        return view('Products.category.ajaxCategory.loadCategorydataTomodal', compact('CategoryData', 'categoryType'));
+        $MainCategory = MainCategory::where('is_active', STATIC_DATA_MODEL::$Active)->get();
+        return view('Products.category.ajaxCategory.loadCategorydataTomodal', compact('CategoryData', 'categoryType', 'MainCategory'));
     }
 
 
@@ -324,5 +355,274 @@ class ProductManagementController extends Controller
         $userActivity = new UserActivityManagementController();
         $userActivity->saveActivity(STATIC_DATA_MODEL::$update, "$msg: " . $subCategoryObj->id);
         return compact('msg');
+    }
+
+    /////////// SAVE VARIATION //////////////////
+    public function saveVariation(Request $request)
+    {
+        $this->validate($request, [
+            'variation_name' => 'required',
+        ]);
+
+        if (\App\Variation::where('variation_name', request('variation_name'))->exists()) {
+            return response()->json(['status' => 'error', 'message' => 'Variation already exists']);
+        } else {
+            $logged_user = session('logged_user_id');
+
+            $variation = new \App\Variation();
+            $variation->variation_name = $request->variation_name;
+            $variation->is_active = STATIC_DATA_MODEL::$Active;
+            $variation->created_by = $logged_user;
+            $variation->updated_by = $logged_user;
+            $variationsaved = $variation->save();
+
+            if (!$variationsaved) {
+                return response()->json(['status' => 'error', 'message' => 'Failed to save variation']);
+            } else {
+                return response()->json(['status' => 'success', 'message' => 'Variation saved successfully', 'data' => $variation]);
+            }
+        }
+    }
+
+    /////////// SAVE VARIATION VALUE //////////////////
+    public function saveVariationValue(Request $request)
+    {
+        $this->validate($request, [
+            'pm_variation_id' => 'required',
+            'pm_variation_value_type_id' => 'required',
+            'variation_value' => 'required',
+        ]);
+
+        $logged_user = session('logged_user_id');
+
+        $variationValue = new \App\VariationValue();
+        $variationValue->pm_variation_id = $request->pm_variation_id;
+        $variationValue->pm_variation_value_type_id = $request->pm_variation_value_type_id;
+        $variationValue->variation_value_name = $request->variation_value_name;
+        $variationValue->variation_value = $request->variation_value;
+        $variationValue->is_active = STATIC_DATA_MODEL::$Active;
+        $variationValue->created_by = $logged_user;
+        $variationValue->updated_by = $logged_user;
+        $variationValuesaved = $variationValue->save();
+
+        if (!$variationValuesaved) {
+            return response()->json(['status' => 'error', 'message' => 'Failed to save variation value']);
+        } else {
+            // Load the variation value with its relationship
+            $variationValue->load('variation');
+            return response()->json(['status' => 'success', 'message' => 'Variation value saved successfully', 'data' => $variationValue]);
+        }
+    }
+
+    /////////// UPDATE VARIATION //////////////////
+    public function updateVariation(Request $request)
+    {
+        $this->validate($request, [
+            'variation_id' => 'required',
+            'variation_name' => 'required',
+        ]);
+
+        $variation = \App\Variation::find($request->variation_id);
+        if (!$variation) {
+            return response()->json(['status' => 'error', 'message' => 'Variation not found']);
+        }
+
+        // Check if another variation with the same name exists
+        if (\App\Variation::where('variation_name', $request->variation_name)->where('id', '!=', $request->variation_id)->exists()) {
+            return response()->json(['status' => 'error', 'message' => 'Variation name already exists']);
+        }
+
+        $variation->variation_name = $request->variation_name;
+        $variation->updated_by = session('logged_user_id');
+        $variationsaved = $variation->save();
+
+        if (!$variationsaved) {
+            return response()->json(['status' => 'error', 'message' => 'Failed to update variation']);
+        } else {
+            return response()->json(['status' => 'success', 'message' => 'Variation updated successfully', 'data' => $variation]);
+        }
+    }
+
+    /////////// UPDATE VARIATION VALUE //////////////////
+    public function updateVariationValue(Request $request)
+    {
+        $this->validate($request, [
+            'variation_value_id' => 'required',
+            'pm_variation_value_type_id' => 'required',
+            'variation_value' => 'required',
+        ]);
+
+        $variationValue = \App\VariationValue::find($request->variation_value_id);
+        if (!$variationValue) {
+            return response()->json(['status' => 'error', 'message' => 'Variation value not found']);
+        }
+
+        $variationValue->pm_variation_value_type_id = $request->pm_variation_value_type_id;
+        $variationValue->variation_value_name = $request->variation_value_name;
+        $variationValue->variation_value = $request->variation_value;
+        $variationValue->updated_by = session('logged_user_id');
+        $variationValuesaved = $variationValue->save();
+
+        if (!$variationValuesaved) {
+            return response()->json(['status' => 'error', 'message' => 'Failed to update variation value']);
+        } else {
+            // Load the variation value with its relationship
+            $variationValue->load('variation');
+            return response()->json(['status' => 'success', 'message' => 'Variation value updated successfully', 'data' => $variationValue]);
+        }
+    }
+
+    /////////// DELETE VARIATION //////////////////
+    public function deleteVariation(Request $request)
+    {
+        $variation = \App\Variation::find($request->variation_id);
+        if (!$variation) {
+            return response()->json(['status' => 'error', 'message' => 'Variation not found']);
+        }
+
+        // Check if variation has any values
+        if ($variation->variationValues()->count() > 0) {
+            return response()->json(['status' => 'error', 'message' => 'Cannot delete variation with existing values']);
+        }
+
+        $variation->delete();
+        return response()->json(['status' => 'success', 'message' => 'Variation deleted successfully']);
+    }
+
+    /////////// DELETE VARIATION VALUE //////////////////
+    public function deleteVariationValue(Request $request)
+    {
+        $variationValue = \App\VariationValue::find($request->variation_value_id);
+        if (!$variationValue) {
+            return response()->json(['status' => 'error', 'message' => 'Variation value not found']);
+        }
+
+        $variationValue->delete();
+        return response()->json(['status' => 'success', 'message' => 'Variation value deleted successfully']);
+    }
+
+    /////////// TOGGLE VARIATION STATUS //////////////////
+    public function toggleVariationStatus(Request $request)
+    {
+        $variation = \App\Variation::find($request->variation_id);
+        if (!$variation) {
+            return response()->json(['status' => 'error', 'message' => 'Variation not found']);
+        }
+
+        $variation->is_active = $variation->is_active == STATIC_DATA_MODEL::$Active ? STATIC_DATA_MODEL::$Inactive : STATIC_DATA_MODEL::$Active;
+        $variation->updated_by = session('logged_user_id');
+        $variation->save();
+
+        $statusText = $variation->is_active == STATIC_DATA_MODEL::$Active ? 'activated' : 'deactivated';
+        return response()->json(['status' => 'success', 'message' => "Variation $statusText successfully", 'is_active' => $variation->is_active]);
+    }
+
+    /////////// TOGGLE VARIATION VALUE STATUS //////////////////
+    public function toggleVariationValueStatus(Request $request)
+    {
+        $variationValue = \App\VariationValue::find($request->variation_value_id);
+        if (!$variationValue) {
+            return response()->json(['status' => 'error', 'message' => 'Variation value not found']);
+        }
+
+        $variationValue->is_active = $variationValue->is_active == STATIC_DATA_MODEL::$Active ? STATIC_DATA_MODEL::$Inactive : STATIC_DATA_MODEL::$Active;
+        $variationValue->updated_by = session('logged_user_id');
+        $variationValue->save();
+
+        $statusText = $variationValue->is_active == STATIC_DATA_MODEL::$Active ? 'activated' : 'deactivated';
+        return response()->json(['status' => 'success', 'message' => "Variation value $statusText successfully", 'is_active' => $variationValue->is_active]);
+    }
+
+    /////////// LOAD SUB CATEGORIES BY MAIN CATEGORY //////////////////
+    public function loadSubCategoriesByMainCategory(Request $request)
+    {
+        $subCategories = SubCategory::where('pm_product_main_category_id', $request->main_category_id)
+                                    ->where('is_active', STATIC_DATA_MODEL::$Active)
+                                    ->get();
+        return response()->json(['status' => 'success', 'data' => $subCategories]);
+    }
+
+    /////////// LOAD VARIATION VALUES BY VARIATION //////////////////
+    public function loadVariationValuesByVariation(Request $request)
+    {
+        $variationValues = \App\VariationValue::where('pm_variation_id', $request->variation_id)
+                                              ->where('is_active', STATIC_DATA_MODEL::$Active)
+                                              ->get();
+        
+        // Get variation value types from STATIC_DATA_MODEL
+        $variationValueTypes = [
+            \App\STATIC_DATA_MODEL::$variationValueTypeL => 'L',
+            \App\STATIC_DATA_MODEL::$variationValueTypeML => 'ML',
+            \App\STATIC_DATA_MODEL::$variationValueTypeG => 'G',
+            \App\STATIC_DATA_MODEL::$variationValueTypeKG => 'KG'
+        ];
+        
+        return response()->json(['status' => 'success', 'data' => $variationValues, 'types' => $variationValueTypes]);
+    }
+
+    /////////// SAVE PRODUCT ITEMS //////////////////
+    public function saveProductItems(Request $request)
+    {
+        $this->validate($request, [
+            'products' => 'required|array',
+            'products.*.product_name' => 'required',
+            'products.*.product_code' => 'required',
+            'products.*.pm_product_item_type_id' => 'required',
+            'products.*.pm_product_main_category_id' => 'required',
+            'products.*.pm_product_sub_category_id' => 'required',
+            'products.*.selling_price' => 'required|numeric',
+            'products.*.cost_price' => 'required|numeric',
+        ]);
+
+        $logged_user = session('logged_user_id');
+        $savedProducts = 0;
+
+        foreach ($request->products as $productData) {
+            // Check if product code already exists
+            if (\App\ProductItem::where('product_code', $productData['product_code'])->exists()) {
+                continue; // Skip this product
+            }
+
+            $productItem = new \App\ProductItem();
+            $productItem->product_name = $productData['product_name'];
+            $productItem->product_description = $productData['product_description'] ?? '';
+            $productItem->product_code = $productData['product_code'];
+            $productItem->pm_product_item_type_id = $productData['pm_product_item_type_id'];
+            $productItem->pm_product_main_category_id = $productData['pm_product_main_category_id'];
+            $productItem->pm_product_sub_category_id = $productData['pm_product_sub_category_id'];
+            $productItem->pm_product_item_variation_id = $productData['pm_product_item_variation_id'] ?? null;
+            $productItem->pm_product_item_variation_value_id = $productData['pm_product_item_variation_value_id'] ?? null;
+            $productItem->selling_price = $productData['selling_price'];
+            $productItem->cost_price = $productData['cost_price'];
+            $productItem->status = $productData['status'] ?? \App\STATIC_DATA_MODEL::$Active;
+            $productItem->created_by = $logged_user;
+            $productItem->updated_by = $logged_user;
+            $productItem->save();
+
+            $savedProducts++;
+        }
+
+        if ($savedProducts > 0) {
+            return response()->json(['status' => 'success', 'message' => "$savedProducts products saved successfully"]);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'No products were saved. They may already exist.']);
+        }
+    }
+
+    /////////// GET VARIATION VALUES //////////////////
+    public function getVariationValues(Request $request)
+    {
+        $variationValues = \App\VariationValue::where('pm_variation_id', $request->variation_id)->get();
+        return response()->json(['status' => 'success', 'data' => $variationValues]);
+    }
+
+    /////////// GET VARIATION VALUE //////////////////
+    public function getVariationValue(Request $request)
+    {
+        $variationValue = \App\VariationValue::find($request->variation_value_id);
+        if (!$variationValue) {
+            return response()->json(['status' => 'error', 'message' => 'Variation value not found']);
+        }
+        return response()->json(['status' => 'success', 'data' => $variationValue]);
     }
 }

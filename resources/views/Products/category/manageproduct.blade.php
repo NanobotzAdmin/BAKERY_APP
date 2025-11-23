@@ -93,6 +93,11 @@
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <a href="{{ url('/adminCategoryVariationManagement') }}" class="btn btn-info">Category & Variation Management</a>
+                            </div>
+                        </div>
                         <table class="table table-bordered table-hover dataTables-example" style="font-family: 'Lato', sans-serif;">
                             <thead>
                                 <tr>
@@ -147,85 +152,7 @@
     </div>
     <!------------ ////////////// SUB CATEGORY BEGIN HERE ///////////////////////// -->
 
-    <div class="row">
-        <div class="col-sm-12">
 
-            <!-- Modal -->
-            <div class="modal fade" id="subProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="exampleModalLabel">Create New Product</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form method="POST" action="saveSubCategory">
-                            {{ csrf_field() }}
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label for="sCategory">Product Name</label>
-                                    <input type="text" class="form-control form-control-sm" id="sCategory" name="subCategoryName" value="{{ old('subCategoryName') }}" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                    <label for="productCode">Product Code</label>
-                                    <input type="text" class="form-control form-control-sm" id="productCode" name="productCode" value="{{ old('productCode') }}" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                    <label for="category">Main Category</label>
-                                    <select class="select2 form-control form-control-sm" name="mainCategorySelect" value="{{ old('mainCategorySelect') }}">
-                                        <option value="0">-- Select One --</option>
-                                        @foreach ($mainActiveCategory as $ActiveCategory)
-                                            <option value="{{ $ActiveCategory->id }}">
-                                                {{ $ActiveCategory->main_category_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="duration">Expire Duration</label>
-                                    <input type="number" class="form-control form-control-sm" id="duration" name="duration" value="{{ old('duration') }}" maxlength="12" autocomplete="off">
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="">Selling Price</label>
-                                        <input type="text" class="form-control form-control-sm" name="sellingPrice" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="">Retail Price</label>
-                                        <input type="text" class="form-control form-control-sm" name="retailPrice" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="">Actual Cost</label>
-                                        <input type="text" class="form-control form-control-sm" name="actualCost" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="">Discounted Price</label>
-                                        <input type="text" class="form-control form-control-sm" name="discountedPrice" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="">Discountable Qty</label>
-                                        <input type="text" class="form-control form-control-sm" name="discountedQty" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="">Sequence No</label>
-                                        <input type="text" class="form-control form-control-sm" name="sequenceNo" maxlength="2" oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Save Product</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <div class="row">
@@ -235,38 +162,41 @@
                     <h5>Manage Products</h5>
                 </div>
                 <div class="ibox-content">
-                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#subProduct">Create New product</button>
+                    <a href="{{ url('/adminProductRegistration') }}" class="btn btn-sm btn-primary">Product Registration</a>
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <a href="{{ url('/adminCategoryVariationManagement') }}" class="btn btn-info">Category & Variation Management</a>
+                            </div>
+                        </div>
                         <table class="table table-bordered table-hover dataTables-example" style="font-family: 'Lato', sans-serif;">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Product</th>
+                                    <th>Product Name</th>
                                     <th>Main Category</th>
+                                    <th>Sub Category</th>
+                                    <th>Variation</th>
+                                    <th>Variation Value</th>
                                     <th>Product Code</th>
-                                    <th>Expire Duration</th>
-                                    <th>Sequence Number</th>
                                     <th>Status</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php $id = 0; ?>
-                                @foreach ($subCategory as $subCatogories)
-                                    <?php
-                                    $mainCategory = App\MainCategory::find($subCatogories->pm_product_main_category_id);
-                                    $id++;
-                                    ?>
+                                @foreach ($productItems as $productItem)
+                                    <?php $id++; ?>
                                     <tr>
                                         <td>{{ $id }}</td>
-                                        <td>{{ $subCatogories->sub_category_name }}</td>
-                                        <td>{{ $mainCategory->main_category_name }}</td>
-                                        <td>{{ $subCatogories->product_code }}</td>
-                                        <td style="text-align: center;"><?php echo isset($subCatogories->expire_in_days) ? $subCatogories->expire_in_days : '0'; ?></td>
-                                        <td style="text-align: center;">{{ $subCatogories->sequence_no }}</td>
-                                        @if ($subCatogories->is_active == 1)
+                                        <td>{{ $productItem->product_name }}</td>
+                                        <td>{{ $productItem->mainCategory ? $productItem->mainCategory->main_category_name : 'N/A' }}</td>
+                                        <td>{{ $productItem->subCategory ? $productItem->subCategory->sub_category_name : 'N/A' }}</td>
+                                        <td>{{ $productItem->variation ? $productItem->variation->variation_name : 'N/A' }}</td>
+                                        <td>{{ $productItem->variationValue ? ($productItem->variationValue->variation_value_name ? $productItem->variationValue->variation_value_name : $productItem->variationValue->variation_value) : 'N/A' }}</td>
+                                        <td>{{ $productItem->product_code }}</td>
+                                        @if ($productItem->status == App\STATIC_DATA_MODEL::$Active)
                                             <td style="min-width: 90px; color: #1ab394; text-align: center;"><span
                                                     class="badge"
                                                     style="color: #28a745; background-color: #e2f5e6;">Active</span></td>
@@ -275,28 +205,11 @@
                                                     class="badge"
                                                     style="color: #dc3545; background-color: #fceff0;">Inactive</span></td>
                                         @endif
-                                        <td>
-                                            <button type="button" class="btn btn-outline-warning btn-xs"
-                                                data-toggle="modal" data-target="#updateMainCategory"
-                                                onclick="showCategoryUpdateModal({{ $subCatogories->id }},'subCategory')"><i
-                                                    class="fa fa-pencil-square-o" aria-hidden="true"></i>&nbsp;
-                                                Update</button>
-                                            @if ($subCatogories->is_active == App\STATIC_DATA_MODEL::$Active)
-                                                <button type="button" class="btn btn-outline-danger btn-xs"
-                                                    onclick="subCatogoryStatusChange({{ $subCatogories->id }})">Deactivate</button>
-                                            @else
-                                                <button type="button" class="btn btn-outline-success btn-xs"
-                                                    onclick="subCatogoryStatusChange({{ $subCatogories->id }})">&nbsp;
-                                                    Activate&nbsp;&nbsp;</button>
-                                            @endif
-                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-                    <!-- Modal -->
-
                 </div>
             </div>
         </div>
@@ -338,49 +251,6 @@
         }
 
 
-        // sub-Catogory Status Change
-        function subCatogoryStatusChange(subCatID) {
-            var csrf_token = $("#csrf_token").val();
-            jQuery.ajax({
-                url: "{{ url('/subCatogoryStatusChange') }}",
-                type: "POST",
-                data: {
-                    "_token": csrf_token,
-                    "subCatID": subCatID,
-                },
-                beforeSend: function() {
-                    showLder();
-                },
-                complete: function() {},
-                error: function(data) {},
-                success: function(data) {
-                    hideLder();
-                    var messageTitle;
-                    var messageBody;
 
-                    if (data.msg === 'Sub-Category Deactivated') {
-                        messageTitle = 'Deactivated';
-                        messageBody = 'Product successfully deactivated.';
-                    } else if (data.msg === 'Sub-Category Activated') {
-                        messageTitle = 'Activated';
-                        messageBody = 'Product successfully activated.';
-                    } else {
-                        messageBody = 'Operation Error...';
-                    }
-
-                    swal({
-                            title: messageTitle,
-                            text: messageBody,
-                            type: "success",
-                            showConfirmButton: false, // Hide the OK button
-                            timer: 1500, // Set the duration for 1.5 seconds
-                        },
-                        function() {
-                            location.reload();
-                        }
-                    );
-                }
-            });
-        }
     </script>
 @endsection
