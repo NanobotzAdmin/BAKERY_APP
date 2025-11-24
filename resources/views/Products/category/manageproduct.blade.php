@@ -108,8 +108,8 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Product Type</th>
-                                    <th>Product Name</th>
-                                    <th>Product Code</th>
+                                    <th>Product Item Name</th>
+                                    <th>Bin Code</th>
                                     <th>Main Category</th>
                                     <th>Sub Category</th>
                                     <th>Variation</th>
@@ -144,8 +144,8 @@
                                                 <span class="badge-raw">Raw Material</span>
                                             @endif
                                         </td>
-                                        <td><strong>{{ $productItem->product_name }}</strong></td>
-                                        <td>{{ $productItem->product_code }}</td>
+                                        <td><strong>{{ $productItem->product_item_name }}</strong></td>
+                                        <td>{{ $productItem->bin_code }}</td>
                                         <td>{{ $productItem->mainCategory ? $productItem->mainCategory->main_category_name : 'N/A' }}</td>
                                         <td>{{ $productItem->subCategory ? $productItem->subCategory->sub_category_name : 'N/A' }}</td>
                                         <td>{{ $productItem->variation ? $productItem->variation->variation_name : 'N/A' }}</td>

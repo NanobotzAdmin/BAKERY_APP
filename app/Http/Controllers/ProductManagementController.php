@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\StockBatch;
+use App\Product;
 use App\ProductItem;
 use App\SubCategory;
 use App\MainCategory;
@@ -11,6 +12,8 @@ use App\ProductHasIngredients;
 use App\STATIC_DATA_MODEL;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class ProductManagementController extends Controller
 {
@@ -47,7 +50,34 @@ class ProductManagementController extends Controller
             $productItemTypes[$type['id']] = $type['name'];
         }
         $variations = \App\Variation::where('is_active', STATIC_DATA_MODEL::$Active)->get();
-        return view('Products.category.productRegistration', compact('mainCategories', 'productItemTypes', 'variations'));
+
+        $variationValueTypes = [];
+        foreach (\App\STATIC_DATA_MODEL::$variationValueType as $type) {
+            $variationValueTypes[$type['id']] = $type['name'];
+        }
+
+        $brands = collect();
+        if (Schema::hasTable('pm_brands')) {
+            $brandColumns = Schema::getColumnListing('pm_brands');
+            $labelColumn = in_array('brand_name', $brandColumns)
+                ? 'brand_name'
+                : (in_array('name', $brandColumns) ? 'name' : null);
+
+            $brandQuery = DB::table('pm_brands')->select('id');
+            if ($labelColumn) {
+                $brandQuery->addSelect($labelColumn . ' as label');
+            } else {
+                $brandQuery->addSelect(DB::raw("CONCAT('Brand ', id) as label"));
+            }
+
+            if (in_array('is_active', $brandColumns)) {
+                $brandQuery->where('is_active', STATIC_DATA_MODEL::$Active);
+            }
+
+            $brands = $brandQuery->orderBy('label')->get();
+        }
+
+        return view('Products.category.productRegistration', compact('mainCategories', 'productItemTypes', 'variations', 'brands', 'variationValueTypes'));
     }
 
     /////////// SAVE MAIN CATEGORY //////////////////
@@ -492,56 +522,91 @@ class ProductManagementController extends Controller
     /////////// SAVE PRODUCT ITEMS //////////////////
     public function saveProductItems(Request $request)
     {
-        // Create validation rules for product item types
         $validProductItemTypes = [];
         foreach (\App\STATIC_DATA_MODEL::$productItemTypes as $type) {
             $validProductItemTypes[] = $type['id'];
         }
-        
+
+        $brandRule = Schema::hasTable('pm_brands') ? 'nullable|exists:pm_brands,id' : 'nullable';
+
         $this->validate($request, [
-            'products' => 'required|array',
-            'products.*.product_name' => 'required',
-            'products.*.product_code' => 'required',
-            'products.*.pm_product_item_type_id' => 'required|in:' . implode(',', $validProductItemTypes),
-            'products.*.pm_product_main_category_id' => 'required',
-            'products.*.pm_product_sub_category_id' => 'required',
-            'products.*.selling_price' => 'nullable|numeric|min:0',
-            'products.*.cost_price' => 'nullable|numeric|min:0',
+            'product' => 'required|array',
+            'product.pm_brands_id' => $brandRule,
+            'product.product_name' => 'required|string|max:150',
+            'product.product_code' => 'required|string|max:50|unique:pm_product,product_code',
+            'product.product_description' => 'nullable|string',
+            'product.pm_product_item_type_id' => 'required|in:' . implode(',', $validProductItemTypes),
+            'product.pm_product_main_category_id' => 'required|exists:pm_product_main_category,id',
+            'product.pm_product_sub_category_id' => 'required|exists:pm_product_sub_category,id',
+            'items' => 'required|array|min:1',
+            'items.*.product_item_name' => 'required|string|max:150',
+            'items.*.bin_code' => 'required|string|max:50|distinct|unique:pm_product_item,bin_code',
+            'items.*.pm_product_item_variation_id' => 'nullable|exists:pm_variation,id',
+            'items.*.pm_product_item_variation_value_id' => 'nullable|exists:pm_variation_value,id',
+            'items.*.selling_price' => 'nullable|numeric|min:0',
+            'items.*.cost_price' => 'nullable|numeric|min:0',
         ]);
 
         $logged_user = session('logged_user_id');
-        $savedProducts = 0;
+        $productPayload = $request->input('product');
+        $itemsPayload = $request->input('items');
+        $savedItems = 0;
 
-        foreach ($request->products as $productData) {
-            // Check if product code already exists
-            if (\App\ProductItem::where('product_code', $productData['product_code'])->exists()) {
-                continue; // Skip this product
+        DB::beginTransaction();
+
+        try {
+            $product = Product::create([
+                'pm_brands_id' => $productPayload['pm_brands_id'] ?? null,
+                'product_name' => $productPayload['product_name'],
+                'product_code' => $productPayload['product_code'],
+                'product_description' => $productPayload['product_description'] ?? null,
+                'is_active' => STATIC_DATA_MODEL::$Active,
+                'pm_product_item_type_id' => $productPayload['pm_product_item_type_id'],
+                'pm_product_main_category_id' => $productPayload['pm_product_main_category_id'],
+                'pm_product_sub_category_id' => $productPayload['pm_product_sub_category_id'],
+                'created_by' => $logged_user,
+                'updated_by' => $logged_user,
+            ]);
+
+            foreach ($itemsPayload as $itemData) {
+                if (ProductItem::where('bin_code', $itemData['bin_code'])->exists()) {
+                    continue;
+                }
+
+                ProductItem::create([
+                    'pm_product_id' => $product->id,
+                    'product_item_name' => $itemData['product_item_name'],
+                    'bin_code' => $itemData['bin_code'],
+                    'pm_product_item_type_id' => $product->pm_product_item_type_id,
+                    'pm_product_main_category_id' => $product->pm_product_main_category_id,
+                    'pm_product_sub_category_id' => $product->pm_product_sub_category_id,
+                    'pm_product_item_variation_id' => $itemData['pm_product_item_variation_id'] ?? null,
+                    'pm_product_item_variation_value_id' => $itemData['pm_product_item_variation_value_id'] ?? null,
+                    'selling_price' => $itemData['selling_price'] ?? 0,
+                    'cost_price' => $itemData['cost_price'] ?? 0,
+                    'status' => $itemData['status'] ?? STATIC_DATA_MODEL::$Active,
+                    'created_by' => $logged_user,
+                    'updated_by' => $logged_user,
+                ]);
+
+                $savedItems++;
             }
 
-            $productItem = new \App\ProductItem();
-            $productItem->product_name = $productData['product_name'];
-            $productItem->product_description = $productData['product_description'] ?? '';
-            $productItem->product_code = $productData['product_code'];
-            $productItem->pm_product_item_type_id = $productData['pm_product_item_type_id'];
-            $productItem->pm_product_main_category_id = $productData['pm_product_main_category_id'];
-            $productItem->pm_product_sub_category_id = $productData['pm_product_sub_category_id'];
-            $productItem->pm_product_item_variation_id = $productData['pm_product_item_variation_id'] ?? null;
-            $productItem->pm_product_item_variation_value_id = $productData['pm_product_item_variation_value_id'] ?? null;
-            $productItem->selling_price = $productData['selling_price'] ?? 0;
-            $productItem->cost_price = $productData['cost_price'] ?? 0;
-            $productItem->status = $productData['status'] ?? \App\STATIC_DATA_MODEL::$Active;
-            $productItem->created_by = $logged_user;
-            $productItem->updated_by = $logged_user;
-            $productItem->save();
+            if ($savedItems === 0) {
+                DB::rollBack();
+                return response()->json(['status' => 'error', 'message' => 'No product items were saved. They may already exist.']);
+            }
 
-            $savedProducts++;
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Failed to save product with items', [
+                'error' => $th->getMessage(),
+            ]);
+            return response()->json(['status' => 'error', 'message' => 'Failed to save product. Please try again.'], 500);
         }
 
-        if ($savedProducts > 0) {
-            return response()->json(['status' => 'success', 'message' => "$savedProducts products saved successfully"]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => 'No products were saved. They may already exist.']);
-        }
+        return response()->json(['status' => 'success', 'message' => "$savedItems product items saved successfully"]);
     }
 
     /////////// GET VARIATION VALUES //////////////////
@@ -574,16 +639,18 @@ class ProductManagementController extends Controller
             ->where('status', STATIC_DATA_MODEL::$Active)
             ->get();
 
-        $variationValueTypes = collect(STATIC_DATA_MODEL::$variationValueType ?? [])
+        $variationValueTypesCollection = collect(STATIC_DATA_MODEL::$variationValueType ?? [])
             ->map(function ($type) {
                 return [
                     'id' => $type['id'],
                     'name' => $type['name'],
                 ];
-            })
-            ->values();
+            });
 
-        return view('Products.ingredient.manageIngredients', compact('sellingProducts', 'rawMaterials', 'variationValueTypes'));
+        $variationValueTypes = $variationValueTypesCollection->values()->all();
+        $variationValueTypeMap = $variationValueTypesCollection->keyBy('id')->toArray();
+
+        return view('Products.ingredient.manageIngredients', compact('sellingProducts', 'rawMaterials', 'variationValueTypes', 'variationValueTypeMap'));
     }
 
     /**
@@ -605,6 +672,8 @@ class ProductManagementController extends Controller
 
         $ingredients = ProductHasIngredients::with(['rawMaterial.variation', 'rawMaterial.variationValue'])
             ->where('pm_product_item_id', $productId)
+            ->where('status', STATIC_DATA_MODEL::$Active)
+            ->orderBy('id')
             ->get()
             ->map(function ($ingredient) {
                 return [
@@ -656,7 +725,17 @@ class ProductManagementController extends Controller
             foreach ($request->products as $productData) {
                 $productId = $productData['product_id'];
 
-                ProductHasIngredients::where('pm_product_item_id', $productId)->delete();
+                $existingIngredients = ProductHasIngredients::where('pm_product_item_id', $productId)
+                    ->orderByDesc('id')
+                    ->get();
+
+                $activeIngredients = $existingIngredients
+                    ->filter(function ($ingredient) {
+                        return (int) $ingredient->status === STATIC_DATA_MODEL::$Active;
+                    })
+                    ->keyBy('pm_raw_material_id');
+
+                $processedRawMaterialIds = [];
 
                 foreach ($productData['ingredients'] as $ingredientData) {
                     $rawMaterial = ProductItem::with(['variation', 'variationValue'])->find($ingredientData['raw_material_id']);
@@ -670,15 +749,42 @@ class ProductManagementController extends Controller
                         throw new \Exception('Invalid variation value type selected.');
                     }
 
+                    $processedRawMaterialIds[] = (int) $rawMaterial->id;
+                    $existingActiveRecord = $activeIngredients->get($rawMaterial->id);
+                    $incomingValue = round((float) $ingredientData['variation_value'], 4);
+                    $existingValue = $existingActiveRecord ? round((float) $existingActiveRecord->pm_variation_value, 4) : null;
+
+                    if (
+                        $existingActiveRecord &&
+                        (int) $existingActiveRecord->pm_variation_value_type_id === $typeId &&
+                        $existingValue === $incomingValue
+                    ) {
+                        continue;
+                    }
+
+                    if ($existingActiveRecord) {
+                        $existingActiveRecord->status = STATIC_DATA_MODEL::$Inactive;
+                        $existingActiveRecord->updated_by = $loggedUser;
+                        $existingActiveRecord->save();
+                    }
+
                     ProductHasIngredients::create([
                         'pm_product_item_id' => $productId,
                         'pm_raw_material_id' => $rawMaterial->id,
                         'pm_variation_value_type_id' => $typeId,
-                        'pm_variation_value' => $ingredientData['variation_value'],
+                        'pm_variation_value' => $incomingValue,
                         'status' => STATIC_DATA_MODEL::$Active,
                         'created_by' => $loggedUser,
                         'updated_by' => $loggedUser,
                     ]);
+                }
+
+                foreach ($activeIngredients as $rawMaterialId => $existingActiveRecord) {
+                    if (!in_array((int) $rawMaterialId, $processedRawMaterialIds, true)) {
+                        $existingActiveRecord->status = STATIC_DATA_MODEL::$Inactive;
+                        $existingActiveRecord->updated_by = $loggedUser;
+                        $existingActiveRecord->save();
+                    }
                 }
             }
 

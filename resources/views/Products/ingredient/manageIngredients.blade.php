@@ -7,9 +7,11 @@
 
     $rawMaterialOptionHtml = '';
     foreach ($rawMaterials as $material) {
-        $label = $material->product_name . ' (' . ($material->product_code ?? 'N/A') . ')';
+        $label = $material->product_item_name . ' (' . ($material->bin_code ?? 'N/A') . ')';
         $rawMaterialOptionHtml .= '<option value="' . $material->id . '">' . e($label) . '</option>';
     }
+
+    $variationValueTypeMap = $variationValueTypeMap ?? [];
 
 @endphp
 
@@ -55,7 +57,7 @@
 
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-12">
-            <h2><strong>Ingredient Management</strong></h2>
+            <h2 class=" text-dark"><strong>Ingredient Management</strong></h2>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
                     <a href="/admindashboard">Home</a>
@@ -63,7 +65,7 @@
                 <li class="breadcrumb-item">
                     <a>Product Management</a>
                 </li>
-                <li class="breadcrumb-item active">
+                <li class="breadcrumb-item active text-dark">
                     <strong>Ingredients</strong>
                 </li>
             </ol>
@@ -83,13 +85,13 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox">
-                <div class="ibox-title">
+                <div class="ibox-title text-dark">
                     <h5>Build Ingredients for Selling Products</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="row mb-3">
                         <div class="col">
-                            <p class="text-muted mb-0">
+                            <p class="text-dark mb-0">
                                 Review the selling products below and click <strong>Manage Ingredients</strong> to
                                 configure the raw materials required for each item.
                             </p>
@@ -98,7 +100,7 @@
 
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered" id="sellingProductsTable">
-                            <thead>
+                            <thead class="text-dark">
                                 <tr>
                                     <th style="width: 60px;" class="text-center">#</th>
                                     <th>Selling Product</th>
@@ -113,8 +115,8 @@
                                     <tr data-product-id="{{ $product->id }}">
                                         <td class="align-middle text-center font-weight-bold">{{ $index + 1 }}</td>
                                         <td class="align-middle">
-                                            <div class="font-weight-bold text-dark">{{ $product->product_name ?? 'N/A' }}</div>
-                                            <div class="text-muted small">Code: {{ $product->product_code ?? 'N/A' }}</div>
+                                            <div class="font-weight-bold text-dark">{{ $product->product_item_name ?? 'N/A' }}</div>
+                                            <div class="text-muted small">Bin: {{ $product->bin_code ?? 'N/A' }}</div>
                                         </td>
                                         {{-- <td class="align-middle">
                                             {{ optional($product->variation)->variation_name ?? 'N/A' }}
@@ -124,7 +126,12 @@
                                                 $variationValue = $product->variationValue;
                                                 $variationValueLabel = 'N/A';
                                                 if ($variationValue) {
-                                                    $variationValueLabel = trim(($variationValue->variation_value_name ?? '') . ' ' . ($variationValue->variation_value ? '(' . $variationValue->variation_value . ' ' . ($variationValue->pm_variation_value_type_id ? $variationValueTypes[$variationValue->pm_variation_value_type_id]['name'] : 'N/A') . ')' : ''));
+                                                    $typeLabel = 'N/A';
+                                                    if (!empty($variationValue->pm_variation_value_type_id)) {
+                                                        $typeId = $variationValue->pm_variation_value_type_id;
+                                                        $typeLabel = $variationValueTypeMap[$typeId]['name'] ?? 'N/A';
+                                                    }
+                                                    $variationValueLabel = trim(($variationValue->variation_value_name ?? '') . ' ' . ($variationValue->variation_value ? '(' . $variationValue->variation_value . ' ' . $typeLabel . ')' : ''));
                                                     $variationValueLabel = $variationValueLabel ?: 'N/A';
                                                 }
                                             @endphp
@@ -160,7 +167,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="ingredientModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade text-dark" id="ingredientModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-wide modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -294,9 +301,9 @@
                     };
                 }
 
-                $('#modalProductName').text(product.product_name || 'N/A');
+                $('#modalProductName').text(product.product_item_name || 'N/A');
                 $('#modalProductMeta').text([
-                    `Code: ${product.product_code || 'N/A'}`,
+                    `Bin: ${product.bin_code || 'N/A'}`,
                     `Category: ${getCategoryLabel(product.main_category, product.sub_category)}`,
                     `Variation: ${getVariationName(product.variation)} | ${getVariationValueText(product.variation_value)}`
                 ].join(' • '));
@@ -488,8 +495,8 @@
                         <tr>
                             <td class="align-middle text-center">${index + 1}</td>
                             <td>
-                                <div class="font-weight-bold">${escapeHtml(material.product_name || 'N/A')}</div>
-                                <div class="text-muted small">Code: ${escapeHtml(material.product_code || 'N/A')}</div>
+                                <div class="font-weight-bold">${escapeHtml(material.product_item_name || 'N/A')}</div>
+                                <div class="text-muted small">Bin: ${escapeHtml(material.bin_code || 'N/A')}</div>
                             </td>
                             <td class="align-middle">
                                 <input type="number"

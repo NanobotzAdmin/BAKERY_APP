@@ -17,9 +17,9 @@ class ProductItem extends Model
      * @var array
      */
     protected $fillable = [
-        'product_name',
-        'product_description',
-        'product_code',
+        'pm_product_id',
+        'product_item_name',
+        'bin_code',
         'pm_product_item_type_id',
         'pm_product_main_category_id',
         'pm_product_sub_category_id',
@@ -48,6 +48,11 @@ class ProductItem extends Model
     public function subCategory()
     {
         return $this->belongsTo(SubCategory::class, 'pm_product_sub_category_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'pm_product_id');
     }
 
     /**
