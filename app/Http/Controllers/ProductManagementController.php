@@ -25,16 +25,14 @@ class ProductManagementController extends Controller
     {
         $MainCategory = MainCategory::all();
         $mainActiveCategory = MainCategory::where('is_active', STATIC_DATA_MODEL::$Active)->get();
-        $subCategory = SubCategory::all();
+        $subCategory = SubCategory::with('pmProductMainCategory')->get();
         $variations = \App\Variation::with('variationValues')->get();
         
         // Get variation value types from STATIC_DATA_MODEL
-        $variationValueTypes = [
-            \App\STATIC_DATA_MODEL::$variationValueTypeL => 'L',
-            \App\STATIC_DATA_MODEL::$variationValueTypeML => 'ML',
-            \App\STATIC_DATA_MODEL::$variationValueTypeG => 'G',
-            \App\STATIC_DATA_MODEL::$variationValueTypeKG => 'KG'
-        ];
+        $variationValueTypes = [];
+        foreach (\App\STATIC_DATA_MODEL::$variationValueType as $type) {
+            $variationValueTypes[$type['id']] = $type['name'];
+        }
         
         return view('Products.category.categoryVariationManagement', compact('MainCategory', 'mainActiveCategory', 'subCategory', 'variations', 'variationValueTypes'));
     }
@@ -42,10 +40,10 @@ class ProductManagementController extends Controller
     public function adminProductRegistrationIndex()
     {
         $mainCategories = MainCategory::where('is_active', STATIC_DATA_MODEL::$Active)->get();
-        $productItemTypes = [
-            \App\STATIC_DATA_MODEL::$packed => 'Packed',
-            \App\STATIC_DATA_MODEL::$unpacked => 'Unpacked'
-        ];
+        $productItemTypes = [];
+        foreach (\App\STATIC_DATA_MODEL::$productItemTypes as $type) {
+            $productItemTypes[$type['id']] = $type['name'];
+        }
         $variations = \App\Variation::where('is_active', STATIC_DATA_MODEL::$Active)->get();
         return view('Products.category.productRegistration', compact('mainCategories', 'productItemTypes', 'variations'));
     }
@@ -158,74 +156,38 @@ class ProductManagementController extends Controller
         $this->validate($request, [
             'subCategoryName' => 'required',
             'mainCategorySelect' => 'required|not_in:0',
-            'productCode' => 'required',
-            'actualCost' => 'required|numeric',
-            'retailPrice' => 'required|numeric',
-            'retailPrice' => 'required|numeric',
         ]);
 
-        if ($request->duration != '') {
-            $this->validate($request, [
-                'duration' => 'numeric',
-            ]);
-        }
-
-        if ((float)$request->sellingPrice < (float)$request->actualCost) {
-            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Product Saving Stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Selling Price cannot be less than Actual Price.</i>');
-            session()->flash('flash_message_type', 'alert-danger');
-            return redirect()->back();
-        } else if ((float)$request->actualCost > (float)$request->retailPrice) {
-            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Product Saving Stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Actual Price cannot be greater than Retail Price.</i>');
-            session()->flash('flash_message_type', 'alert-danger');
-            return redirect()->back();
-        } else if ((float)$request->sellingPrice > (float)$request->retailPrice) {
-            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Product Saving Stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Selling Price cannot be greater than Retail Price.</i>');
+        if (SubCategory::where('sub_category_name', $request->subCategoryName)->exists()) {
+            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Sub Category Saving Stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Sub Category Name already exists.</i>');
             session()->flash('flash_message_type', 'alert-danger');
             return redirect()->back();
         } else {
-            if (SubCategory::where(['sub_category_name' => $request->subCategoryName, 'product_code' => $request->productCode])->exists()) {
-                session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Product Saving Stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Product Name & Product Code already exists.</i>');
+            $logged_user = session('logged_user_id');
+            $subCategory = new SubCategory();
+            $subCategory->sub_category_name = $request->subCategoryName;
+            $subCategory->pm_product_main_category_id = $request->mainCategorySelect;
+            $subCategory->is_active = STATIC_DATA_MODEL::$Active;
+            $subCategory->created_at = Carbon::now();
+            $subCategory->updated_at = Carbon::now();
+            $subCategory->created_by = $logged_user;
+            $subCategorysaved = $subCategory->save();
+
+            //Get last record user login
+            $lastsubCategoryId = DB::table('pm_product_sub_category')->latest()->first();
+
+            if (!$subCategorysaved) {
+                session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Sub Category saving stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Something went wrong! New Sub Category failed to save..</i>');
                 session()->flash('flash_message_type', 'alert-danger');
                 return redirect()->back();
             } else {
-                $logged_user = session('logged_user_id');
-                $subCategory = new SubCategory();
-                $subCategory->sub_category_name = $request->subCategoryName;
-                $subCategory->pm_product_main_category_id = $request->mainCategorySelect;
-                $subCategory->is_active = STATIC_DATA_MODEL::$Active;
-                $subCategory->created_at = Carbon::now();
-                $subCategory->updated_at = Carbon::now();
-                if ($request->duration != '') {
-                    $subCategory->expire_in_days = $request->duration;
-                } else {
-                    $subCategory->expire_in_days = 0;
-                }
-                $subCategory->product_code = $request->productCode;
-                $subCategory->created_by = $logged_user;
-                $subCategory->selling_price = $request->sellingPrice;
-                $subCategory->actual_cost = $request->actualCost;
-                $subCategory->retail_price = $request->retailPrice;
-                $subCategory->discountable_qty = $request->discountedQty;
-                $subCategory->discounted_price = $request->discountedPrice;
-                $subCategory->sequence_no = $request->sequenceNo;
-                $subCategorysaved = $subCategory->save();
+                //Save user activity
+                $userActivity = new UserActivityManagementController();
+                $userActivity->saveActivity(STATIC_DATA_MODEL::$insert, "New Sub Category " . $lastsubCategoryId->id . " Saved.");
 
-                //Get last record user login
-                $lastsubCategoryId = DB::table('pm_product_sub_category')->latest()->first();
-
-                if (!$subCategorysaved) {
-                    session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Product saving stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Something went wrong! New Product failed to save..</i>');
-                    session()->flash('flash_message_type', 'alert-danger');
-                    return redirect()->back();
-                } else {
-                    //Save user activity
-                    $userActivity = new UserActivityManagementController();
-                    $userActivity->saveActivity(STATIC_DATA_MODEL::$insert, "New Sub Category " . $lastsubCategoryId->id . " Saved.");
-
-                    session()->flash('message', '<i class="fa fa-check-circle"></i> <b>Product save successful</b> <br> &nbsp;&nbsp;&nbsp; <i>New Product: "'.$request->subCategoryName.'" has been successfully saved.</i>');
-                    session()->flash('flash_message_type', 'alert-success');
-                    return redirect()->back();
-                }
+                session()->flash('message', '<i class="fa fa-check-circle"></i> <b>Sub Category save successful</b> <br> &nbsp;&nbsp;&nbsp; <i>New Sub Category: "'.$request->subCategoryName.'" has been successfully saved.</i>');
+                session()->flash('flash_message_type', 'alert-success');
+                return redirect()->back();
             }
         }
     }
@@ -236,23 +198,13 @@ class ProductManagementController extends Controller
         $this->validate($request, [
             'MODAL_SUBCATEGORY_NAME' => 'required',
             'MODAL_SUBCATEGORY_MAINCATEGORY_SELECT' => 'required|not_in:0',
-            'MODAL_PRODUCT_CODE' => 'required',
-            'MODAL_SELLING_PRICE' => 'required|numeric',
-            'MODAL_ACTUAL_COST' => 'required|numeric',
-            'MODAL_RETAIL_PRICE' => 'required|numeric',
         ]);
-
-        if ($request->duration != '') {
-            $this->validate($request, [
-                'MODAL_SUBCATEGORY_DURATION' => 'numeric',
-            ]);
-        }
 
         $checkSubCategoryName = SubCategory::find($request->MODAL_SUBCATEGORY_UPDATE_ID);
         $categoryStatus = true;
 
-        if (SubCategory::where(['sub_category_name' => $request->MODAL_SUBCATEGORY_NAME, 'product_code' => $request->MODAL_PRODUCT_CODE])->exists()) {
-            if ($checkSubCategoryName->sub_category_name == $request->MODAL_SUBCATEGORY_NAME && $checkSubCategoryName->product_code == $request->MODAL_PRODUCT_CODE) {
+        if (SubCategory::where('sub_category_name', $request->MODAL_SUBCATEGORY_NAME)->exists()) {
+            if ($checkSubCategoryName->sub_category_name == $request->MODAL_SUBCATEGORY_NAME) {
                 $categoryStatus = true;
             } else {
                 $categoryStatus = false;
@@ -261,52 +213,30 @@ class ProductManagementController extends Controller
             $categoryStatus = true;
         }
 
-        if ((float)$request->MODAL_SELLING_PRICE < (float)$request->MODAL_ACTUAL_COST) {
-            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Product saving stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Selling Price cannot be less than Actual Price.</i>');
-            session()->flash('flash_message_type', 'alert-danger');
-            return redirect()->back();
-        } else if ((float)$request->MODAL_ACTUAL_COST > (float)$request->MODAL_RETAIL_PRICE) {
-            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Product saving stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Actual Price cannot be greater than Retail Price.</i>');
-            session()->flash('flash_message_type', 'alert-danger');
-            return redirect()->back();
-        } else if ((float)$request->MODAL_SELLING_PRICE > (float)$request->MODAL_RETAIL_PRICE) {
-            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Product saving stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Selling Price cannot be greater than Retail Price.</i>');
-            session()->flash('flash_message_type', 'alert-danger');
-            return redirect()->back();
-        } else {
-            if ($categoryStatus) {
-                $subCategoryUpdate = SubCategory::find($request->MODAL_SUBCATEGORY_UPDATE_ID);
-                $subCategoryUpdate->sub_category_name = $request->MODAL_SUBCATEGORY_NAME;
-                $subCategoryUpdate->pm_product_main_category_id = $request->MODAL_SUBCATEGORY_MAINCATEGORY_SELECT;
-                $subCategoryUpdate->expire_in_days = $request->MODAL_SUBCATEGORY_DURATION;
-                $subCategoryUpdate->product_code = $request->MODAL_PRODUCT_CODE;
-                $subCategoryUpdate->selling_price = $request->MODAL_SELLING_PRICE;
-                $subCategoryUpdate->actual_cost = $request->MODAL_ACTUAL_COST;
-                $subCategoryUpdate->retail_price = $request->MODAL_RETAIL_PRICE;
-                $subCategoryUpdate->discountable_qty = $request->MODAL_DISCOUNTED_QTY;
-                $subCategoryUpdate->discounted_price = $request->MODAL_DISCOUNT_PRICE;
-                $subCategoryUpdate->sequence_no = $request->MODAL_SEQUENCE_NO;
-                $subCategoryUpdate->updated_at = Carbon::now();
-                $subCategoryUpdatesaved = $subCategoryUpdate->save();
+        if ($categoryStatus) {
+            $subCategoryUpdate = SubCategory::find($request->MODAL_SUBCATEGORY_UPDATE_ID);
+            $subCategoryUpdate->sub_category_name = $request->MODAL_SUBCATEGORY_NAME;
+            $subCategoryUpdate->pm_product_main_category_id = $request->MODAL_SUBCATEGORY_MAINCATEGORY_SELECT;
+            $subCategoryUpdate->updated_at = Carbon::now();
+            $subCategoryUpdatesaved = $subCategoryUpdate->save();
 
-                if (!$subCategoryUpdatesaved) {
-                    session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Product update failed</b> <br> &nbsp;&nbsp;&nbsp; <i>Something went wrong! Product failed to update..</i>');
-                    session()->flash('flash_message_type', 'alert-danger');
-                    return redirect()->back();
-                } else {
-                    //Save user activity
-                    $userActivity = new UserActivityManagementController();
-                    $userActivity->saveActivity(STATIC_DATA_MODEL::$update, "Update Sub Category " . $request->MODAL_SUBCATEGORY_UPDATE_ID . " Updated.");
-
-                    session()->flash('message', '<i class="fa fa-check-circle" style="color:green;"></i> <b>Product update successful</b> <br> &nbsp;&nbsp;&nbsp; <i>Product: "'.$subCategoryUpdate->sub_category_name.'" details have been successfully updated.</i>');
-                    session()->flash('flash_message_type', 'alert-success');
-                    return redirect()->back();
-                }
+            if (!$subCategoryUpdatesaved) {
+                session()->flash('message', '<i class="fa fa-exclamation-circle" style="color: red;"></i> <b>Sub Category update failed</b> <br> &nbsp;&nbsp;&nbsp; <i>Something went wrong! Sub Category failed to update..</i>');
+                session()->flash('flash_message_type', 'alert-danger');
+                return redirect()->back();
             } else {
-                session()->flash('message', '<i class="fa fa-exclamation-circle" style="color:red;"></i> <b>Product updating stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Sub Category Name or Product Code is already exists!</i>');
-                session()->flash('flash_message_type', 'alert-warning');
+                //Save user activity
+                $userActivity = new UserActivityManagementController();
+                $userActivity->saveActivity(STATIC_DATA_MODEL::$update, "Update Sub Category " . $request->MODAL_SUBCATEGORY_UPDATE_ID . " Updated.");
+
+                session()->flash('message', '<i class="fa fa-check-circle" style="color:green;"></i> <b>Sub Category update successful</b> <br> &nbsp;&nbsp;&nbsp; <i>Sub Category: "'.$subCategoryUpdate->sub_category_name.'" details have been successfully updated.</i>');
+                session()->flash('flash_message_type', 'alert-success');
                 return redirect()->back();
             }
+        } else {
+            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color:red;"></i> <b>Sub Category updating stopped !</b> <br> &nbsp;&nbsp;&nbsp; <i>Sub Category Name already exists!</i>');
+            session()->flash('flash_message_type', 'alert-warning');
+            return redirect()->back();
         }
     }
 
@@ -316,7 +246,6 @@ class ProductManagementController extends Controller
     {
         $products = SubCategory::where('pm_product_main_category_id', $request->MainCategory)
                                 ->where('is_active', STATIC_DATA_MODEL::$Active)
-                                ->orderBy('sequence_no')
                                 ->get();
         return compact('products');
     }
@@ -550,12 +479,10 @@ class ProductManagementController extends Controller
                                               ->get();
         
         // Get variation value types from STATIC_DATA_MODEL
-        $variationValueTypes = [
-            \App\STATIC_DATA_MODEL::$variationValueTypeL => 'L',
-            \App\STATIC_DATA_MODEL::$variationValueTypeML => 'ML',
-            \App\STATIC_DATA_MODEL::$variationValueTypeG => 'G',
-            \App\STATIC_DATA_MODEL::$variationValueTypeKG => 'KG'
-        ];
+        $variationValueTypes = [];
+        foreach (\App\STATIC_DATA_MODEL::$variationValueType as $type) {
+            $variationValueTypes[$type['id']] = $type['name'];
+        }
         
         return response()->json(['status' => 'success', 'data' => $variationValues, 'types' => $variationValueTypes]);
     }
@@ -563,15 +490,21 @@ class ProductManagementController extends Controller
     /////////// SAVE PRODUCT ITEMS //////////////////
     public function saveProductItems(Request $request)
     {
+        // Create validation rules for product item types
+        $validProductItemTypes = [];
+        foreach (\App\STATIC_DATA_MODEL::$productItemTypes as $type) {
+            $validProductItemTypes[] = $type['id'];
+        }
+        
         $this->validate($request, [
             'products' => 'required|array',
             'products.*.product_name' => 'required',
             'products.*.product_code' => 'required',
-            'products.*.pm_product_item_type_id' => 'required',
+            'products.*.pm_product_item_type_id' => 'required|in:' . implode(',', $validProductItemTypes),
             'products.*.pm_product_main_category_id' => 'required',
             'products.*.pm_product_sub_category_id' => 'required',
-            'products.*.selling_price' => 'required|numeric',
-            'products.*.cost_price' => 'required|numeric',
+            'products.*.selling_price' => 'nullable|numeric|min:0',
+            'products.*.cost_price' => 'nullable|numeric|min:0',
         ]);
 
         $logged_user = session('logged_user_id');
@@ -592,8 +525,8 @@ class ProductManagementController extends Controller
             $productItem->pm_product_sub_category_id = $productData['pm_product_sub_category_id'];
             $productItem->pm_product_item_variation_id = $productData['pm_product_item_variation_id'] ?? null;
             $productItem->pm_product_item_variation_value_id = $productData['pm_product_item_variation_value_id'] ?? null;
-            $productItem->selling_price = $productData['selling_price'];
-            $productItem->cost_price = $productData['cost_price'];
+            $productItem->selling_price = $productData['selling_price'] ?? 0;
+            $productItem->cost_price = $productData['cost_price'] ?? 0;
             $productItem->status = $productData['status'] ?? \App\STATIC_DATA_MODEL::$Active;
             $productItem->created_by = $logged_user;
             $productItem->updated_by = $logged_user;

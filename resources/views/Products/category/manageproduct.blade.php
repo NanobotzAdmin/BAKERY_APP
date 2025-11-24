@@ -14,14 +14,38 @@
         .table-hover tbody tr:hover {
             background-color: #faf6ec;
             color: #000;
-            /* Light blue color - adjust as needed */
             transition: background-color 0.2s;
-            /* Add a smooth transition effect */
         }
 
         .table th {
-            text-align: center; /* Horizontally center the text */
-            vertical-align: middle !important; /* Vertically center the text */
+            text-align: center;
+            vertical-align: middle !important;
+        }
+        
+        .product-type-selling {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+        }
+        
+        .product-type-raw {
+            background-color: #fff4e6;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .badge-selling {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .badge-raw {
+            background-color: #ff9800;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
         }
     </style>
 
@@ -48,109 +72,8 @@
             <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
             @include('include.flash')
             @include('include.errors')
-
-            <!-- Modal -->
-            <div class="modal fade" id="mainProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="exampleModalLabel">Create New Main Category</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form action="saveMainCategory" method="POST">
-                            {{ csrf_field() }}
-                            <div class="modal-body">
-
-                                <div class="form-group">
-                                    <label for="category"> Main Category Name</label>
-                                    <input type="text" class="form-control" id="category" name="category" value="{{ old('category') }}" autocomplete="off">
-                                </div>
-
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="ibox">
-                <div class="ibox-title">
-                    <h5>Manage Main Categories</h5>
-                </div>
-                <div class="ibox-content">
-                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#mainProduct">Create New Main Category</button>
-                </div>
-                <div class="ibox-content">
-                    <div class="table-responsive">
-                        <div class="row mb-3">
-                            <div class="col-sm-12">
-                                <a href="{{ url('/adminCategoryVariationManagement') }}" class="btn btn-info">Category & Variation Management</a>
-                            </div>
-                        </div>
-                        <table class="table table-bordered table-hover dataTables-example" style="font-family: 'Lato', sans-serif;">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Main Category Name</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $id = 0; ?>
-                                @foreach ($MainCategory as $category)
-                                    <?php $id++; ?>
-                                    <tr>
-                                        <td><?php echo $id; ?></td>
-                                        <td>{{ $category->main_category_name }}</td>
-                                        @if ($category->is_active == 1)
-                                            <td style="min-width: 90px; color: #1ab394; text-align: center;"><span
-                                                    class="badge"
-                                                    style="color: #28a745; background-color: #e2f5e6;">Active</span></td>
-                                        @else
-                                            <td style="min-width: 90px; color: #e70000; text-align: center;"><span
-                                                    class="badge"
-                                                    style="color: #dc3545; background-color: #fceff0;">Inactive</span></td>
-                                        @endif
-                                        <td>
-                                            <button type="button" class="btn btn-outline-warning btn-xs"
-                                                data-toggle="modal" data-target="#updateMainCategory"
-                                                onclick="showCategoryUpdateModal({{ $category->id }},'mainCategory')"><i
-                                                    class="fa fa-pencil-square-o" aria-hidden="true"></i>&nbsp;
-                                                Update</button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="updateMainCategory" tabindex="-1" role="dialog"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content" id="modelContentCategory">
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
         </div>
     </div>
-    <!------------ ////////////// SUB CATEGORY BEGIN HERE ///////////////////////// -->
 
 
 
@@ -162,40 +85,85 @@
                     <h5>Manage Products</h5>
                 </div>
                 <div class="ibox-content">
-                    <a href="{{ url('/adminProductRegistration') }}" class="btn btn-sm btn-primary">Product Registration</a>
-                </div>
-                <div class="ibox-content">
-                    <div class="table-responsive">
-                        <div class="row mb-3">
-                            <div class="col-sm-12">
-                                <a href="{{ url('/adminCategoryVariationManagement') }}" class="btn btn-info">Category & Variation Management</a>
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <a href="{{ url('/adminProductRegistration') }}" class="btn btn-sm btn-primary">
+                                <i class="fa fa-plus"></i> Product Registration
+                            </a>
+                            <a href="{{ url('/adminCategoryVariationManagement') }}" class="btn btn-sm btn-info">
+                                <i class="fa fa-cog"></i> Category & Variation Management
+                            </a>
+                        </div>
+                        <div class="col-sm-6 text-right">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="filterProducts('all')">All</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="filterProducts('selling')">Selling Products</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="filterProducts('raw')">Raw Materials</button>
                             </div>
                         </div>
-                        <table class="table table-bordered table-hover dataTables-example" style="font-family: 'Lato', sans-serif;">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover dataTables-example" id="productsTable" style="font-family: 'Lato', sans-serif;">
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>Product Type</th>
                                     <th>Product Name</th>
+                                    <th>Product Code</th>
                                     <th>Main Category</th>
                                     <th>Sub Category</th>
                                     <th>Variation</th>
                                     <th>Variation Value</th>
-                                    <th>Product Code</th>
+                                    <th>Selling Price</th>
+                                    <th>Cost Price</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $id = 0; ?>
+                                <?php 
+                                    $id = 0;
+                                    $productItemTypes = [];
+                                    foreach (\App\STATIC_DATA_MODEL::$productItemTypes as $type) {
+                                        $productItemTypes[$type['id']] = $type['name'];
+                                    }
+                                ?>
                                 @foreach ($productItems as $productItem)
-                                    <?php $id++; ?>
-                                    <tr>
+                                    <?php 
+                                        $id++;
+                                        $productTypeId = $productItem->pm_product_item_type_id;
+                                        $productTypeName = isset($productItemTypes[$productTypeId]) ? $productItemTypes[$productTypeId] : 'N/A';
+                                        $isSelling = $productTypeId == 1;
+                                        $rowClass = $isSelling ? 'product-type-selling' : 'product-type-raw';
+                                    ?>
+                                    <tr class="{{ $rowClass }}" data-product-type="{{ $isSelling ? 'selling' : 'raw' }}">
                                         <td>{{ $id }}</td>
-                                        <td>{{ $productItem->product_name }}</td>
+                                        <td>
+                                            @if($isSelling)
+                                                <span class="badge-selling">Selling Product</span>
+                                            @else
+                                                <span class="badge-raw">Raw Material</span>
+                                            @endif
+                                        </td>
+                                        <td><strong>{{ $productItem->product_name }}</strong></td>
+                                        <td>{{ $productItem->product_code }}</td>
                                         <td>{{ $productItem->mainCategory ? $productItem->mainCategory->main_category_name : 'N/A' }}</td>
                                         <td>{{ $productItem->subCategory ? $productItem->subCategory->sub_category_name : 'N/A' }}</td>
                                         <td>{{ $productItem->variation ? $productItem->variation->variation_name : 'N/A' }}</td>
                                         <td>{{ $productItem->variationValue ? ($productItem->variationValue->variation_value_name ? $productItem->variationValue->variation_value_name : $productItem->variationValue->variation_value) : 'N/A' }}</td>
-                                        <td>{{ $productItem->product_code }}</td>
+                                        <td>
+                                            @if($isSelling && $productItem->selling_price)
+                                                {{ number_format($productItem->selling_price, 2) }}
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($isSelling && $productItem->cost_price)
+                                                {{ number_format($productItem->cost_price, 2) }}
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
                                         @if ($productItem->status == App\STATIC_DATA_MODEL::$Active)
                                             <td style="min-width: 90px; color: #1ab394; text-align: center;"><span
                                                     class="badge"
@@ -218,39 +186,25 @@
 
 @section('footer')
     <script>
+        var table;
         $(document).ready(function() {
-            $('.dataTables-example').DataTable({
+            table = $('#productsTable').DataTable({
                 pageLength: 25,
                 responsive: true,
                 dom: '<"html5buttons"B>lTfgitp',
-                buttons: []
+                buttons: [],
+                order: [[1, 'asc']] // Sort by Product Type
             });
         });
 
-
-        function showCategoryUpdateModal(CategoryId, categoryType) {
-            var csrf_token = $("#csrf_token").val();
-            jQuery.ajax({
-                url: "{{ url('/loadCategoryDataToModal') }}",
-                type: "POST",
-                data: {
-                    "_token": csrf_token,
-                    "CategoryId": CategoryId,
-                    "categoryType": categoryType
-                },
-                beforeSend: function() {
-                    showLder();
-                },
-                complete: function() {},
-                error: function(data) {},
-                success: function(data) {
-                    hideLder();
-                    $('#modelContentCategory').html(data);
-                }
-            });
+        function filterProducts(type) {
+            if (type === 'all') {
+                table.column(1).search('').draw();
+            } else if (type === 'selling') {
+                table.column(1).search('Selling Product').draw();
+            } else if (type === 'raw') {
+                table.column(1).search('Raw Material').draw();
+            }
         }
-
-
-
     </script>
 @endsection

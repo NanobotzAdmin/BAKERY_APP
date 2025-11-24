@@ -81,10 +81,24 @@ class STATIC_DATA_MODEL
     public static $orderTakeDeleted = 3;
 
     // Variation Value Types
-    public static $variationValueTypeL = 1;
-    public static $variationValueTypeML = 2;
-    public static $variationValueTypeG = 3;
-    public static $variationValueTypeKG = 4;
+    public static $variationValueType = [
+        [
+            'id' => 1,
+            'name' => 'l'
+        ],
+        [
+            'id' => 2,
+            'name' => 'ml'
+        ],
+        [
+            'id' => 3,
+            'name' => 'g'
+        ],
+        [
+            'id' => 4,
+            'name' => 'kg'
+        ]
+    ];
 
     public static $productItemTypes = [
         [

@@ -37,13 +37,15 @@
             margin: 5px;
             padding: 5px 10px;
             background-color: #fff;
-            border: 1px solid #e7eaec;
-            border-radius: 3px;
+            border: 1px solid #000000;
+            color:black;
+            border-radius: 5px;
         }
     </style>
+<div class="container-fluid">
 
     <div class="row wrapper border-bottom white-bg page-heading">
-        <div class="col-lg-12">
+        <div class="col-lg-12 p-0">
             <h2><b>Category & Variation Management</b></h2>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
@@ -61,7 +63,7 @@
     <br>
 
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12 p-0">
             <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
             @include('include.flash')
             @include('include.errors')
@@ -100,7 +102,7 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12 p-0">
             <div class="ibox">
                 <div class="ibox-title">
                     <h5>Manage Main Categories</h5>
@@ -166,14 +168,14 @@
     <!------------ ////////////// SUB CATEGORY BEGIN HERE ///////////////////////// -->
 
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12 p-0">
 
             <!-- Modal for Sub Category -->
             <div class="modal fade" id="subProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h4 class="modal-title" id="exampleModalLabel">Create New Product</h4>
+                            <h4 class="modal-title" id="exampleModalLabel">Create New Sub Category</h4>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -182,12 +184,8 @@
                             {{ csrf_field() }}
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="sCategory">Product Name</label>
+                                    <label for="sCategory">Sub Category Name</label>
                                     <input type="text" class="form-control form-control-sm" id="sCategory" name="subCategoryName" value="{{ old('subCategoryName') }}" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                    <label for="productCode">Product Code</label>
-                                    <input type="text" class="form-control form-control-sm" id="productCode" name="productCode" value="{{ old('productCode') }}" autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                     <label for="category">Main Category</label>
@@ -199,43 +197,9 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for="duration">Expire Duration</label>
-                                    <input type="number" class="form-control form-control-sm" id="duration" name="duration" value="{{ old('duration') }}" maxlength="12" autocomplete="off">
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="">Selling Price</label>
-                                        <input type="text" class="form-control form-control-sm" name="sellingPrice" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="">Retail Price</label>
-                                        <input type="text" class="form-control form-control-sm" name="retailPrice" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="">Actual Cost</label>
-                                        <input type="text" class="form-control form-control-sm" name="actualCost" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="">Discounted Price</label>
-                                        <input type="text" class="form-control form-control-sm" name="discountedPrice" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="">Discountable Qty</label>
-                                        <input type="text" class="form-control form-control-sm" name="discountedQty" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="">Sequence No</label>
-                                        <input type="text" class="form-control form-control-sm" name="sequenceNo" maxlength="2" oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Save Product</button>
+                                <button type="submit" class="btn btn-primary">Save Sub Category</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             </div>
                         </form>
@@ -245,13 +209,91 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-sm-12 p-0">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Manage Sub Categories</h5>
+                </div>
+                <div class="ibox-content">
+                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#subProduct">Create New Sub Category</button>
+                </div>
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover dataTables-example" style="font-family: 'Lato', sans-serif;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Sub Category Name</th>
+                                    <th>Main Category</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $id = 0; ?>
+                                @foreach ($subCategory as $subCat)
+                                    <?php $id++; ?>
+                                    <tr>
+                                        <td><?php echo $id; ?></td>
+                                        <td>{{ $subCat->sub_category_name }}</td>
+                                        <td>
+                                            @if($subCat->pmProductMainCategory)
+                                                {{ $subCat->pmProductMainCategory->main_category_name }}
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
+                                        @if ($subCat->is_active == 1)
+                                            <td style="min-width: 90px; color: #1ab394; text-align: center;"><span
+                                                    class="badge"
+                                                    style="color: #28a745; background-color: #e2f5e6;">Active</span></td>
+                                        @else
+                                            <td style="min-width: 90px; color: #e70000; text-align: center;"><span
+                                                    class="badge"
+                                                    style="color: #dc3545; background-color: #fceff0;">Inactive</span></td>
+                                        @endif
+                                        <td>
+                                            <button type="button" class="btn btn-outline-warning btn-xs"
+                                                data-toggle="modal" data-target="#updateSubCategory"
+                                                onclick="showCategoryUpdateModal({{ $subCat->id }},'subCategory')"><i
+                                                    class="fa fa-pencil-square-o" aria-hidden="true"></i>&nbsp;
+                                                Update</button>
+                                            <button type="button" class="btn btn-outline-info btn-xs"
+                                                onclick="subCatogoryStatusChange({{ $subCat->id }})">
+                                                @if ($subCat->is_active == 1)
+                                                    Deactivate
+                                                @else
+                                                    Activate
+                                                @endif
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
 
+                    <!-- Modal for updating sub category -->
+                    <div class="modal fade" id="updateSubCategory" tabindex="-1" role="dialog"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content" id="modelContentSubCategory">
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
     
     
     <!------------ ////////////// VARIATIONS BEGIN HERE ///////////////////////// -->
     
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12 p-0">
             <!-- Modal for Variation -->
             <div class="modal fade" id="variationModal" tabindex="-1" role="dialog" aria-labelledby="variationModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -283,7 +325,7 @@
     </div>
     
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12 p-0">
             <div class="ibox">
                 <div class="ibox-title">
                     <h5>Manage Variations</h5>
@@ -389,20 +431,21 @@
                                 <input type="hidden" id="variation_value_id" name="variation_value_id">
                                 <input type="hidden" id="pm_variation_id" name="pm_variation_id">
                                 
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label for="variation_value_name">Value Name (Optional)</label>
-                                    <input type="text" class="form-control" id="variation_value_name" name="variation_value_name" placeholder="e.g. Small, Medium, Large" autocomplete="off">
-                                </div>
+                                    <input type="text" class="form-control" id="variation_value_name" name="variation_value_name" placeholder="e.g. full, half" autocomplete="off">
+                                </div> --}}
                                 
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
-                                        <label for="variation_value">Value *</label>
-                                        <input type="text" class="form-control" id="variation_value" name="variation_value" placeholder="e.g. 500, 1, 2.5" autocomplete="off" required>
+                                        <label for="variation_value">Value <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="variation_value" name="variation_value" placeholder="e.g. 500, red, 2.5" autocomplete="off" required>
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <label for="pm_variation_value_type_id">Unit Type *</label>
+                                        <label for="pm_variation_value_type_id">Unit Type <span class="text-danger">*</span></label>
                                         <select class="form-control" id="pm_variation_value_type_id" name="pm_variation_value_type_id" required>
                                             <option value="">-- Select Unit --</option>
+                                            <option value="0" selected>Default</option>
                                             @foreach ($variationValueTypes as $id => $name)
                                                 <option value="{{ $id }}">{{ $name }}</option>
                                             @endforeach
@@ -447,6 +490,7 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @section('footer')
@@ -462,6 +506,7 @@
 
         function showCategoryUpdateModal(CategoryId, categoryType) {
             var csrf_token = $("#csrf_token").val();
+            var modalContentId = categoryType === 'mainCategory' ? '#modelContentCategory' : '#modelContentSubCategory';
             jQuery.ajax({
                 url: "{{ url('/loadCategoryDataToModal') }}",
                 type: "POST",
@@ -477,7 +522,7 @@
                 error: function(data) {},
                 success: function(data) {
                     hideLder();
-                    $('#modelContentCategory').html(data);
+                    $(modalContentId).html(data);
                 }
             });
         }

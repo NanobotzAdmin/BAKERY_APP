@@ -11,52 +11,12 @@
 @section('content')
 
     <style>
-        .table-hover tbody tr:hover {
-            background-color: #faf6ec;
-            color: #000;
-            transition: background-color 0.2s;
-        }
-
-        .table th {
-            text-align: center;
-            vertical-align: middle !important;
-        }
         
-        .variation-values-container {
-            margin-top: 15px;
-            padding: 15px;
-            border: 1px solid #e7eaec;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        
-        .variation-value-item {
-            display: inline-block;
-            margin: 5px;
-            padding: 5px 10px;
-            background-color: #fff;
-            border: 1px solid #e7eaec;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        
-        .variation-value-item.selected {
-            background-color: #007bff;
-            color: #fff;
-        }
-        
-        .product-variation-row {
-            border: 1px solid #e7eaec;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background-color: #f8f9fa;
-        }
     </style>
-
+<div class="container-fluid">
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-12">
-            <h2><b>Product Registration</b></h2>
+            <h2 class="text-dark"><b>Product Registration</b></h2>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
                     <a href="/admindashboard">Home</a>
@@ -73,12 +33,12 @@
     <br>
 
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12 p-0">
             <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
             @include('include.flash')
             @include('include.errors')
 
-            <div class="ibox">
+            <div class="ibox text-dark">
                 <div class="ibox-title">
                     <h5>Product Registration Form</h5>
                 </div>
@@ -88,12 +48,12 @@
                         
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                                <label for="product_name">Product Name *</label>
+                                <label for="product_name">Product Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="product_name" name="product_name" required autocomplete="off">
                             </div>
                             
                             <div class="form-group col-md-6">
-                                <label for="product_code">Product Code *</label>
+                                <label for="product_code">Product Code <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="product_code" name="product_code" required autocomplete="off">
                             </div>
                         </div>
@@ -105,7 +65,7 @@
                             </div>
                             
                             <div class="form-group col-md-6">
-                                <label for="pm_product_item_type_id">Product Type *</label>
+                                <label for="pm_product_item_type_id">Product Type <span class="text-danger">*</span></label>
                                 <select class="form-control" id="pm_product_item_type_id" name="pm_product_item_type_id" required>
                                     <option value="">-- Select Product Type --</option>
                                     @foreach ($productItemTypes as $id => $name)
@@ -117,7 +77,7 @@
                         
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                                <label for="pm_product_main_category_id">Main Category *</label>
+                                <label for="pm_product_main_category_id">Main Category <span class="text-danger">*</span></label>
                                 <select class="form-control" id="pm_product_main_category_id" name="pm_product_main_category_id" required>
                                     <option value="">-- Select Main Category --</option>
                                     @foreach ($mainCategories as $mainCategory)
@@ -127,7 +87,7 @@
                             </div>
                             
                             <div class="form-group col-md-6">
-                                <label for="pm_product_sub_category_id">Sub Category *</label>
+                                <label for="pm_product_sub_category_id">Sub Category <span class="text-danger">*</span></label>
                                 <select class="form-control" id="pm_product_sub_category_id" name="pm_product_sub_category_id" required disabled>
                                     <option value="">-- Select Main Category First --</option>
                                 </select>
@@ -135,18 +95,20 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Variations</label>
+                            <label class="mb-3"><strong>Select Variations</strong></label>
                             <div class="row">
                                 @foreach ($variations as $variation)
-                                    <div class="col-md-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input variation-checkbox" type="checkbox" 
-                                                   value="{{ $variation->id }}" 
-                                                   id="variation_{{ $variation->id }}" 
-                                                   data-variation-name="{{ $variation->variation_name }}">
-                                            <label class="form-check-label" for="variation_{{ $variation->id }}">
-                                                {{ $variation->variation_name }}
-                                            </label>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="variation-card" data-variation-id="{{ $variation->id }}">
+                                            <div class="variation-card-header">
+                                                <input class="variation-checkbox" type="checkbox" 
+                                                       value="{{ $variation->id }}" 
+                                                       id="variation_{{ $variation->id }}" 
+                                                       data-variation-name="{{ $variation->variation_name }}">
+                                                <label for="variation_{{ $variation->id }}">
+                                                    {{ $variation->variation_name }}
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -171,11 +133,28 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @section('footer')
     <script>
         $(document).ready(function() {
+            // Check initial product type on page load
+            if ($('#pm_product_item_type_id').val() == '1') {
+                $('.price-fields-container').addClass('show');
+            }
+            
+            // Handle variation checkbox click to update card styling
+            $('.variation-checkbox').on('click', function() {
+                var variationId = $(this).val();
+                var card = $('.variation-card[data-variation-id="' + variationId + '"]');
+                if ($(this).is(':checked')) {
+                    card.addClass('selected');
+                } else {
+                    card.removeClass('selected');
+                }
+            });
+            
             // Load subcategories when main category is selected
             $('#pm_product_main_category_id').on('change', function() {
                 var mainCategoryId = $(this).val();
@@ -218,12 +197,14 @@
             });
             
             // Load variation values when variation checkbox is clicked
-            $('.variation-checkbox').on('change', function() {
+            $(document).on('change', '.variation-checkbox', function() {
                 var variationId = $(this).val();
                 var variationName = $(this).data('variation-name');
                 var csrf_token = $("#csrf_token").val();
+                var card = $('.variation-card[data-variation-id="' + variationId + '"]');
                 
                 if ($(this).is(':checked')) {
+                    card.addClass('selected');
                     // Load variation values
                     $.ajax({
                         url: "{{ url('/loadVariationValuesByVariation') }}",
@@ -245,8 +226,11 @@
                         success: function(response) {
                             hideLder();
                             if (response.status === 'success') {
-                                var html = '<div class="form-group variation-values-group" id="variation-values-' + variationId + '">';
-                                html += '<label>' + variationName + ' Values *</label>';
+                                var html = '<div class="form-group variation-values-group mb-4" id="variation-values-' + variationId + '">';
+                                html += '<div class="variation-card selected">';
+                                html += '<div class="variation-card-header">';
+                                html += '<label class="mb-2"><strong>' + variationName + ' - Select Values</strong></label>';
+                                html += '</div>';
                                 html += '<div class="variation-values-container">';
                                 
                                 if (response.data.length > 0) {
@@ -264,6 +248,7 @@
                                 
                                 html += '</div>';
                                 html += '</div>';
+                                html += '</div>';
                                 
                                 $('#variationValuesContainer').append(html);
                                 
@@ -271,6 +256,9 @@
                                 $('#variation-values-' + variationId + ' .variation-value-item').on('click', function() {
                                     $(this).toggleClass('selected');
                                 });
+                                
+                                // Update variation card to show selected state
+                                $('.variation-card[data-variation-id="' + variationId + '"]').addClass('selected');
                             } else {
                                 swal("Error", response.message, "error");
                             }
@@ -279,6 +267,18 @@
                 } else {
                     // Remove variation values container
                     $('#variation-values-' + variationId).remove();
+                    // Remove selected state from variation card
+                    card.removeClass('selected');
+                }
+            });
+            
+            // Handle Product Type change to show/hide price fields
+            $('#pm_product_item_type_id').on('change', function() {
+                var productTypeId = $(this).val();
+                if (productTypeId == '1') { // Selling Product
+                    $('.price-fields-container').addClass('show');
+                } else {
+                    $('.price-fields-container').removeClass('show');
                 }
             });
             
@@ -379,27 +379,26 @@
                     html += '<div class="form-row">';
                     html += '<div class="form-group col-md-4">';
                     html += '<label>Product Name</label>';
-                    html += '<input type="text" class="form-control product-name" value="' + combinationName + '" data-original="' + productName + '" data-combination=\'' + JSON.stringify(combination) + '\'>';
+                    html += '<input readonly type="text" class="form-control product-name" value="' + combinationName + '" data-original="' + productName + '" data-combination=\'' + JSON.stringify(combination) + '\'>';
                     html += '</div>';
                     html += '<div class="form-group col-md-3">';
                     html += '<label>Product Code</label>';
-                    html += '<input type="text" class="form-control product-code" value="' + combinationCode + '">';
+                    html += '<input readonly type="text" class="form-control product-code" value="' + combinationCode + '">';
                     html += '</div>';
-                    html += '<div class="form-group col-md-2">';
-                    html += '<label>Selling Price</label>';
-                    html += '<input type="number" step="0.01" class="form-control selling-price" placeholder="0.00">';
-                    html += '</div>';
-                    html += '<div class="form-group col-md-2">';
-                    html += '<label>Cost Price</label>';
-                    html += '<input type="number" step="0.01" class="form-control cost-price" placeholder="0.00">';
-                    html += '</div>';
-                    html += '<div class="form-group col-md-1">';
-                    html += '<label>Status</label>';
-                    html += '<select class="form-control product-status">';
-                    html += '<option value="1">Active</option>';
-                    html += '<option value="0">Inactive</option>';
-                    html += '</select>';
-                    html += '</div>';
+                    // Only show price fields if product type is Selling Product (1)
+                    if (productTypeId == '1') {
+                        html += '<div class="form-group col-md-2 price-fields-container show">';
+                        html += '<label>Selling Price</label>';
+                        html += '<input type="number" step="0.01" class="form-control selling-price" placeholder="0.00">';
+                        html += '</div>';
+                        html += '<div class="form-group col-md-2 price-fields-container show">';
+                        html += '<label>Cost Price</label>';
+                        html += '<input type="number" step="0.01" class="form-control cost-price" placeholder="0.00">';
+                        html += '</div>';
+                    } else {
+                        html += '<input type="hidden" class="selling-price" value="0">';
+                        html += '<input type="hidden" class="cost-price" value="0">';
+                    }
                     html += '</div>';
                     html += '</div>';
                 });
@@ -421,7 +420,6 @@
                     var productCode = $(this).find('.product-code').val();
                     var sellingPrice = $(this).find('.selling-price').val();
                     var costPrice = $(this).find('.cost-price').val();
-                    var status = $(this).find('.product-status').val();
                     var combination = $(this).find('.product-name').data('combination');
                     
                     // Validate required fields
@@ -431,15 +429,18 @@
                         return false;
                     }
                     
-                    if (!sellingPrice || !costPrice) {
-                        swal("Error", "Selling price and cost price are required for all products", "error");
+                    // Set default values if prices are empty
+                    sellingPrice = sellingPrice || 0;
+                    costPrice = costPrice || 0;
+                    
+                    // Validate prices (only if provided)
+                    if (sellingPrice && parseFloat(sellingPrice) < 0) {
+                        swal("Error", "Selling price cannot be negative", "error");
                         hasError = true;
                         return false;
                     }
-                    
-                    // Validate prices
-                    if (parseFloat(sellingPrice) < 0 || parseFloat(costPrice) < 0) {
-                        swal("Error", "Prices cannot be negative", "error");
+                    if (costPrice && parseFloat(costPrice) < 0) {
+                        swal("Error", "Cost price cannot be negative", "error");
                         hasError = true;
                         return false;
                     }
@@ -455,7 +456,7 @@
                         pm_product_item_variation_value_id: combination.length > 0 ? combination[0].valueId : null,
                         selling_price: sellingPrice,
                         cost_price: costPrice,
-                        status: status
+                        status: 1 // Default to active
                     });
                 });
                 
@@ -496,13 +497,14 @@
                         $('#saveProductsBtn').prop('disabled', false);
                         
                         if (response.status === 'success') {
-                            swal("Success", response.message, "success");
-                            // Reset form
-                            $('#productRegistrationForm')[0].reset();
-                            $('#pm_product_sub_category_id').html('<option value="">-- Select Main Category First --</option>').prop('disabled', true);
-                            $('#variationValuesContainer').empty();
-                            $('.variation-checkbox').prop('checked', false);
-                            $('#generatedProductsContainer').hide();
+                            swal({
+                                title: "Success",
+                                text: response.message,
+                                type: "success",
+                                showConfirmButton: true
+                            }, function() {
+                                window.location.reload();
+                            });
                         } else {
                             swal("Error", response.message, "error");
                         }
