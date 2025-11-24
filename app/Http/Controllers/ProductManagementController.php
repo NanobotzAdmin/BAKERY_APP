@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\StockBatch;
+use App\ProductItem;
 use App\SubCategory;
 use App\MainCategory;
+use App\ProductHasIngredients;
 use App\STATIC_DATA_MODEL;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -557,5 +559,142 @@ class ProductManagementController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Variation value not found']);
         }
         return response()->json(['status' => 'success', 'data' => $variationValue]);
+    }
+
+    /////////// ADMIN PRODUCT INGREDIENTS MANAGEMENT INDEX //////////////////
+    public function adminProductIngredientsManagementIndex()
+    {
+        $sellingProducts = ProductItem::with(['mainCategory', 'subCategory', 'variation', 'variationValue'])
+            ->where('pm_product_item_type_id', STATIC_DATA_MODEL::$productItemTypes[0]['id'])
+            ->where('status', STATIC_DATA_MODEL::$Active)
+            ->get();
+
+        $rawMaterials = ProductItem::with(['variation', 'variationValue'])
+            ->where('pm_product_item_type_id', STATIC_DATA_MODEL::$productItemTypes[1]['id'])
+            ->where('status', STATIC_DATA_MODEL::$Active)
+            ->get();
+
+        $variationValueTypes = collect(STATIC_DATA_MODEL::$variationValueType ?? [])
+            ->map(function ($type) {
+                return [
+                    'id' => $type['id'],
+                    'name' => $type['name'],
+                ];
+            })
+            ->values();
+
+        return view('Products.ingredient.manageIngredients', compact('sellingProducts', 'rawMaterials', 'variationValueTypes'));
+    }
+
+    /**
+     * Fetch existing ingredient mappings for a specific selling product.
+     *
+     * @param  int  $productId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getProductIngredients($productId)
+    {
+        $product = ProductItem::find($productId);
+
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Selling product not found.',
+            ], 404);
+        }
+
+        $ingredients = ProductHasIngredients::with(['rawMaterial.variation', 'rawMaterial.variationValue'])
+            ->where('pm_product_item_id', $productId)
+            ->get()
+            ->map(function ($ingredient) {
+                return [
+                    'raw_material_id' => $ingredient->pm_raw_material_id,
+                    'variation_value_type_id' => $ingredient->pm_variation_value_type_id,
+                    'variation_value' => $ingredient->pm_variation_value,
+                    'raw_material' => $ingredient->rawMaterial,
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'status' => 'success',
+            'product_id' => $productId,
+            'ingredients' => $ingredients,
+        ]);
+    }
+
+    /**
+     * Save ingredient mappings for selling products.
+     */
+    public function saveProductIngredients(Request $request)
+    {
+        $this->validate($request, [
+            'products' => 'required|array|min:1',
+            'products.*.product_id' => 'required|exists:pm_product_item,id',
+            'products.*.ingredients' => 'required|array|min:1',
+            'products.*.ingredients.*.raw_material_id' => 'required|exists:pm_product_item,id',
+            'products.*.ingredients.*.variation_value_type_id' => 'required|integer',
+            'products.*.ingredients.*.variation_value' => 'required|numeric|min:0.0001',
+        ]);
+
+        $loggedUser = session('logged_user_id');
+
+        if (!$loggedUser) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Session expired. Please login again.',
+            ], 401);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $allowedVariationValueTypeIds = collect(STATIC_DATA_MODEL::$variationValueType ?? [])->pluck('id')->map(function ($id) {
+                return (int) $id;
+            })->all();
+
+            foreach ($request->products as $productData) {
+                $productId = $productData['product_id'];
+
+                ProductHasIngredients::where('pm_product_item_id', $productId)->delete();
+
+                foreach ($productData['ingredients'] as $ingredientData) {
+                    $rawMaterial = ProductItem::with(['variation', 'variationValue'])->find($ingredientData['raw_material_id']);
+
+                    if (!$rawMaterial) {
+                        throw new \Exception('Selected raw material not found.');
+                    }
+
+                    $typeId = (int) $ingredientData['variation_value_type_id'];
+                    if (!in_array($typeId, $allowedVariationValueTypeIds, true)) {
+                        throw new \Exception('Invalid variation value type selected.');
+                    }
+
+                    ProductHasIngredients::create([
+                        'pm_product_item_id' => $productId,
+                        'pm_raw_material_id' => $rawMaterial->id,
+                        'pm_variation_value_type_id' => $typeId,
+                        'pm_variation_value' => $ingredientData['variation_value'],
+                        'status' => STATIC_DATA_MODEL::$Active,
+                        'created_by' => $loggedUser,
+                        'updated_by' => $loggedUser,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Product ingredients saved successfully.',
+            ]);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to save product ingredients. ' . $exception->getMessage(),
+            ], 500);
+        }
     }
 }

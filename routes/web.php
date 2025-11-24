@@ -143,6 +143,8 @@ Route::post('/deleteDelivery', 'VehicleManagementController@deleteDelivery')->mi
 ///////////////////////////////////////////////// PRODUCT CONTROLLER BEGIN HERE //////////////////////////////////////////////////////////////////////////////////////////////////
 // Category
 Route::get('/adminProductManagement', 'ProductManagementController@adminProductManagementIndex')->middleware('userAuth:adminProductManagement');
+Route::get('/adminIngredientManagement', 'ProductManagementController@adminProductIngredientsManagementIndex');
+Route::get('/productIngredients/{product}', 'ProductManagementController@getProductIngredients')->middleware('loggedchecked:getProductIngredients');
 Route::get('/adminProductRegistration', 'ProductManagementController@adminProductRegistrationIndex')->middleware('userAuth:adminProductRegistration');
 Route::get('/adminCategoryVariationManagement', 'ProductManagementController@adminCategoryVariationManagementIndex')->middleware('userAuth:adminCategoryVariationManagement');
 Route::post('/saveMainCategory', 'ProductManagementController@saveMainCategory')->middleware('loggedchecked:saveMainCategory');
@@ -168,6 +170,7 @@ Route::post('/getVariationValue', 'ProductManagementController@getVariationValue
 Route::post('/loadSubCategoriesByMainCategory', 'ProductManagementController@loadSubCategoriesByMainCategory')->middleware('loggedchecked:loadSubCategoriesByMainCategory');
 Route::post('/loadVariationValuesByVariation', 'ProductManagementController@loadVariationValuesByVariation')->middleware('loggedchecked:loadVariationValuesByVariation');
 Route::post('/saveProductItems', 'ProductManagementController@saveProductItems')->middleware('loggedchecked:saveProductItems');
+Route::post('/saveProductIngredients', 'ProductManagementController@saveProductIngredients')->middleware('loggedchecked:saveProductIngredients');
 ///////////////////////////////////////////////// PRODUCT CONTROLLER END HERE ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////// SALES REP CONTROLLER BEGIN HERE ////////////////////////////////////////////////////////////////////////////////////////////////

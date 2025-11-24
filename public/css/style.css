@@ -11908,7 +11908,7 @@ body.md-skin {
 }
 
 .table th {
-    text-align: center;
+    text-align: start;
     vertical-align: middle !important;
 }
 
