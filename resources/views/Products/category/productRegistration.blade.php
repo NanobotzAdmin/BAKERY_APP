@@ -200,9 +200,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                            <small class="text-muted">
-                                Hold <kbd>Ctrl</kbd> (or <kbd>Cmd</kbd>) to select multiple values per attribute.
-                            </small>
+                            
                         </div>
                         
                         <div class="form-group text-right">

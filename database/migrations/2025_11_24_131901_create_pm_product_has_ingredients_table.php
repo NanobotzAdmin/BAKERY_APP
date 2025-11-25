@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('pm_product_item_id')->references('id')->on('pm_product_item');
-            $table->foreign('pm_raw_material_id')->references('id')->on('pm_product_item');
+            $table->foreign('pm_raw_material_id')->references('id')->on('pm_product');
             $table->foreign('created_by')->references('id')->on('um_user');
             $table->foreign('updated_by')->references('id')->on('um_user');
         });

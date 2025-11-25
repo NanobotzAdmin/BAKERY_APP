@@ -634,10 +634,16 @@ class ProductManagementController extends Controller
             ->where('status', STATIC_DATA_MODEL::$Active)
             ->get();
 
-        $rawMaterials = ProductItem::with(['variation', 'variationValue'])
+        $rawMaterials = Product::with(['items' => function ($query) {
+                $query->with(['variation.variationValues', 'variationValue'])
+                    ->where('status', STATIC_DATA_MODEL::$Active);
+            }])
             ->where('pm_product_item_type_id', STATIC_DATA_MODEL::$productItemTypes[1]['id'])
-            ->where('status', STATIC_DATA_MODEL::$Active)
-            ->get();
+            ->where('is_active', STATIC_DATA_MODEL::$Active)
+            ->get()
+            ->map(function ($rawMaterial) {
+                return $this->enrichProductWithVariationMetadata($rawMaterial);
+            });
 
         $variationValueTypesCollection = collect(STATIC_DATA_MODEL::$variationValueType ?? [])
             ->map(function ($type) {
@@ -661,21 +667,22 @@ class ProductManagementController extends Controller
      */
     public function getProductIngredients($productId)
     {
-        $product = ProductItem::find($productId);
+        $productItem = ProductItem::find($productId);
 
-        if (!$product) {
+        if (!$productItem) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Selling product not found.',
             ], 404);
         }
 
-        $ingredients = ProductHasIngredients::with(['rawMaterial.variation', 'rawMaterial.variationValue'])
+        $ingredients = ProductHasIngredients::with(['rawMaterial.items.variation.variationValues', 'rawMaterial.items.variationValue'])
             ->where('pm_product_item_id', $productId)
             ->where('status', STATIC_DATA_MODEL::$Active)
             ->orderBy('id')
             ->get()
             ->map(function ($ingredient) {
+                $ingredient->rawMaterial = $this->enrichProductWithVariationMetadata($ingredient->rawMaterial);
                 return [
                     'raw_material_id' => $ingredient->pm_raw_material_id,
                     'variation_value_type_id' => $ingredient->pm_variation_value_type_id,
@@ -699,9 +706,9 @@ class ProductManagementController extends Controller
     {
         $this->validate($request, [
             'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required|exists:pm_product_item,id',
+            'products.*.product_item_id' => 'required|exists:pm_product_item,id',
             'products.*.ingredients' => 'required|array|min:1',
-            'products.*.ingredients.*.raw_material_id' => 'required|exists:pm_product_item,id',
+            'products.*.ingredients.*.raw_material_id' => 'required|exists:pm_product,id',
             'products.*.ingredients.*.variation_value_type_id' => 'required|integer',
             'products.*.ingredients.*.variation_value' => 'required|numeric|min:0.0001',
         ]);
@@ -723,7 +730,7 @@ class ProductManagementController extends Controller
             })->all();
 
             foreach ($request->products as $productData) {
-                $productId = $productData['product_id'];
+                $productId = $productData['product_item_id'];
 
                 $existingIngredients = ProductHasIngredients::where('pm_product_item_id', $productId)
                     ->orderByDesc('id')
@@ -738,7 +745,10 @@ class ProductManagementController extends Controller
                 $processedRawMaterialIds = [];
 
                 foreach ($productData['ingredients'] as $ingredientData) {
-                    $rawMaterial = ProductItem::with(['variation', 'variationValue'])->find($ingredientData['raw_material_id']);
+                    $rawMaterial = Product::with(['items' => function ($query) {
+                            $query->with(['variation.variationValues', 'variationValue'])
+                                ->where('status', STATIC_DATA_MODEL::$Active);
+                        }])->find($ingredientData['raw_material_id']);
 
                     if (!$rawMaterial) {
                         throw new \Exception('Selected raw material not found.');
@@ -747,6 +757,13 @@ class ProductManagementController extends Controller
                     $typeId = (int) $ingredientData['variation_value_type_id'];
                     if (!in_array($typeId, $allowedVariationValueTypeIds, true)) {
                         throw new \Exception('Invalid variation value type selected.');
+                    }
+
+                    $rawMaterial = $this->enrichProductWithVariationMetadata($rawMaterial);
+                    $materialTypeIds = $rawMaterial->available_variation_type_ids ?? [];
+
+                    if (empty($materialTypeIds) || !in_array($typeId, $materialTypeIds, true)) {
+                        throw new \Exception('Selected variation value type is not available for the chosen raw material.');
                     }
 
                     $processedRawMaterialIds[] = (int) $rawMaterial->id;
@@ -802,5 +819,56 @@ class ProductManagementController extends Controller
                 'message' => 'Failed to save product ingredients. ' . $exception->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Ensure the given product carries variation metadata needed by the UI.
+     */
+    private function enrichProductWithVariationMetadata(?Product $product)
+    {
+        if (!$product) {
+            return $product;
+        }
+
+        $product->loadMissing(['items' => function ($query) {
+            $query->with(['variation.variationValues', 'variationValue'])
+                ->where('status', STATIC_DATA_MODEL::$Active);
+        }]);
+
+        $product->setAttribute('available_variation_type_ids', $this->collectVariationTypeIdsFromProduct($product));
+
+        return $product;
+    }
+
+    /**
+     * Collect all variation value type ids available for the given product.
+     */
+    private function collectVariationTypeIdsFromProduct(Product $product)
+    {
+        if (!$product->relationLoaded('items')) {
+            return [];
+        }
+
+        return $product->items->flatMap(function ($item) {
+            $typeIds = collect();
+
+            if ($item->relationLoaded('variation') && $item->variation) {
+                $item->variation->loadMissing('variationValues');
+                $typeIds = $typeIds->merge($item->variation->variationValues->pluck('pm_variation_value_type_id'));
+            }
+
+            if ($item->relationLoaded('variationValue') && $item->variationValue) {
+                $typeIds->push($item->variationValue->pm_variation_value_type_id);
+            }
+
+            return $typeIds;
+        })
+        ->filter()
+        ->unique()
+        ->values()
+        ->map(function ($id) {
+            return (int) $id;
+        })
+        ->all();
     }
 }

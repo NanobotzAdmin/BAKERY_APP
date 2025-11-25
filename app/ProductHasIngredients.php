@@ -29,7 +29,7 @@ class ProductHasIngredients extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function productItem()
+    public function product()
     {
         return $this->belongsTo(ProductItem::class, 'pm_product_item_id');
     }
@@ -39,7 +39,7 @@ class ProductHasIngredients extends Model
      */
     public function rawMaterial()
     {
-        return $this->belongsTo(ProductItem::class, 'pm_raw_material_id');
+        return $this->belongsTo(Product::class, 'pm_raw_material_id');
     }
 
     // Variation value metadata is stored via static data (pm_variation_value_type_id),

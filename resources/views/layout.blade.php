@@ -50,6 +50,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         #bell_icon:hover:before {
           content: "\f0f3";
@@ -306,6 +307,8 @@
     <script type="text/javascript" src="js/sweetalert.min.js"></script>
     <!-- Data picker -->
     {{-- <script src="public/js/plugins/datapicker/bootstrap-datepicker.js"></script> --}}
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     {{-- Date and Time refresh function --}}
     <script>

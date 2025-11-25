@@ -7,7 +7,9 @@
 
     $rawMaterialOptionHtml = '';
     foreach ($rawMaterials as $material) {
-        $label = $material->product_item_name . ' (' . ($material->bin_code ?? 'N/A') . ')';
+        $productName = $material->product_name ?? 'N/A';
+        $productCode = $material->product_code ?? 'N/A';
+        $label = $productName . ' (' . $productCode . ')';
         $rawMaterialOptionHtml .= '<option value="' . $material->id . '">' . e($label) . '</option>';
     }
 
@@ -18,6 +20,7 @@
 @extends('layout', ['pageId' => $privilageId->pageId, 'grupId' => $privilageId->grupId])
 
 @section('content')
+    
     <style>
         .ingredient-card {
             border-left: 4px solid #1ab394;
@@ -53,6 +56,8 @@
                 width: 90% !important;
             }
         }
+
+       
     </style>
 
     <div class="row wrapper border-bottom white-bg page-heading">
@@ -232,16 +237,19 @@
 @endsection
 
 @section('footer')
+    
     <script>
         (function() {
             const sellingProducts = @json($sellingProducts);
             const rawMaterials = @json($rawMaterials);
             const variationValueTypes = @json($variationValueTypes);
-            const sellingProductMap = mapById(sellingProducts);
+            const sellingProductMap = mapByProductId(sellingProducts);
             const rawMaterialMap = mapById(rawMaterials);
             const csrfToken = '{{ csrf_token() }}';
             const ingredientFetchBaseUrl = '{{ url('/productIngredients') }}';
             const productIngredientStore = {};
+            const $ingredientModal = $('#ingredientModal');
+            const $rawMaterialSelect = $('#modalRawMaterialSelect');
             let activeProductId = null;
 
             $('.manage-ingredient-btn').on('click', function() {
@@ -281,6 +289,11 @@
                 $('#modalIngredientTableWrapper').hide();
                 $('#modalIngredientEmptyState').show();
                 $('#modalSaveIngredientsBtn').prop('disabled', true).html('<i class="fa fa-save"></i> Save Ingredients');
+                destroySelect2Instances();
+            });
+            $('#ingredientModal').on('shown.bs.modal', function() {
+                initializeRawMaterialSelect(true);
+                applySelect2ToVariationSelects(true);
             });
 
             function openIngredientModal(productId) {
@@ -329,11 +342,13 @@
                                 if (rawMaterial && !rawMaterialMap[item.raw_material_id]) {
                                     rawMaterialMap[item.raw_material_id] = rawMaterial;
                                 }
+                                const allowedTypeIds = getAvailableVariationTypeIds(rawMaterial);
                                 return {
                                     raw_material_id: item.raw_material_id,
                                     raw_material: rawMaterial,
                                     variation_value_type_id: item.variation_value_type_id || '',
-                                    variation_value: item.variation_value || ''
+                                    variation_value: item.variation_value || '',
+                                    allowed_variation_type_ids: allowedTypeIds
                                 };
                             });
                         }
@@ -373,8 +388,9 @@
                     return;
                 }
 
-                if (!rawMaterial.pm_product_item_variation_id || !rawMaterial.pm_product_item_variation_value_id) {
-                    swal('Incomplete Data', 'The selected raw material does not have variation details. Please update it first.', 'warning');
+                const allowedTypeIds = getAvailableVariationTypeIds(rawMaterial);
+                if (!allowedTypeIds.length) {
+                    swal('Incomplete Data', 'The selected raw material does not have variation type information. Please update its items first.', 'warning');
                     return;
                 }
 
@@ -389,8 +405,9 @@
                 productData.ingredients.push({
                     raw_material_id: rawMaterial.id,
                     raw_material: rawMaterial,
-                    variation_value_type_id: '',
-                    variation_value: ''
+                    variation_value_type_id: allowedTypeIds.length === 1 ? allowedTypeIds[0] : '',
+                    variation_value: '',
+                    allowed_variation_type_ids: allowedTypeIds
                 });
 
                 resetModalForm();
@@ -413,6 +430,7 @@
                 }
 
                 const productData = productIngredientStore[activeProductId];
+                console.log(productData);
 
                 if (!productData.ingredients.length) {
                     swal('', 'Please add at least one raw material before saving.', 'warning');
@@ -422,6 +440,18 @@
                 const missingTypes = productData.ingredients.some(ingredient => !ingredient.variation_value_type_id);
                 if (missingTypes) {
                     swal('', 'Please select a variation value type for every raw material.', 'warning');
+                    return;
+                }
+
+                const invalidTypeSelections = productData.ingredients.some(ingredient => {
+                    const allowed = ingredient.allowed_variation_type_ids || getAvailableVariationTypeIds(ingredient.raw_material || rawMaterialMap[ingredient.raw_material_id]);
+                    if (!allowed || !allowed.length) {
+                        return true;
+                    }
+                    return !allowed.map(id => String(id)).includes(String(ingredient.variation_value_type_id));
+                });
+                if (invalidTypeSelections) {
+                    swal('', 'One or more raw materials have invalid variation value types selected.', 'warning');
                     return;
                 }
 
@@ -435,7 +465,7 @@
                 }
 
                 const payload = [{
-                    product_id: activeProductId,
+                    product_item_id: activeProductId,
                     ingredients: productData.ingredients.map(ingredient => ({
                         raw_material_id: ingredient.raw_material_id,
                         variation_value_type_id: ingredient.variation_value_type_id,
@@ -489,14 +519,15 @@
 
                 const rows = ingredients.map((ingredient, index) => {
                     const material = ingredient.raw_material || rawMaterialMap[ingredient.raw_material_id] || {};
-                    const typeOptions = buildVariationTypeOptions(ingredient.variation_value_type_id);
+                    const allowedTypeIds = ingredient.allowed_variation_type_ids || getAvailableVariationTypeIds(material);
+                    const typeOptions = buildVariationTypeOptions(ingredient.variation_value_type_id, allowedTypeIds);
                     const valueInput = formatVariationValueInput(ingredient.variation_value);
                     return `
                         <tr>
                             <td class="align-middle text-center">${index + 1}</td>
                             <td>
-                                <div class="font-weight-bold">${escapeHtml(material.product_item_name || 'N/A')}</div>
-                                <div class="text-muted small">Bin: ${escapeHtml(material.bin_code || 'N/A')}</div>
+                                <div class="font-weight-bold">${escapeHtml(material.product_name || 'N/A')}</div>
+                                <div class="text-muted small">Code: ${escapeHtml(material.product_code || 'N/A')}</div>
                             </td>
                             <td class="align-middle">
                                 <input type="number"
@@ -525,16 +556,21 @@
                 $('#modalIngredientTableWrapper').show();
                 $('#modalIngredientEmptyState').hide();
                 $('#modalSaveIngredientsBtn').prop('disabled', false);
+                applySelect2ToVariationSelects(true);
             }
 
             function resetModalForm() {
-                $('#modalRawMaterialSelect').val('');
+                if ($rawMaterialSelect.data('select2')) {
+                    $rawMaterialSelect.val(null).trigger('change.select2');
+                } else {
+                    $rawMaterialSelect.val('');
+                }
             }
 
             function toggleModalLoading(isLoading) {
                 $('#modalLoadingState').toggleClass('d-none', !isLoading);
                 $('#modalAddIngredientBtn').prop('disabled', isLoading);
-                $('#modalRawMaterialSelect').prop('disabled', isLoading);
+                $rawMaterialSelect.prop('disabled', isLoading);
             }
 
             function updateIngredientField(rawMaterialId, key, value) {
@@ -552,13 +588,24 @@
                     return;
                 }
 
+                if (key === 'variation_value_type_id') {
+                    const allowed = ingredient.allowed_variation_type_ids || getAvailableVariationTypeIds(ingredient.raw_material || rawMaterialMap[rawMaterialId]);
+                    if (!allowed || !allowed.length || !allowed.map(id => String(id)).includes(String(value))) {
+                        swal('', 'Selected variation value type is not available for this raw material.', 'warning');
+                        return;
+                    }
+                }
+
                 ingredient[key] = value;
             }
 
-            function buildVariationTypeOptions(selectedId) {
+            function buildVariationTypeOptions(selectedId, allowedTypeIds = null) {
                 const selected = selectedId !== null && selectedId !== undefined ? String(selectedId) : '';
                 const baseOption = '<option value="">-- Select type --</option>';
-                const options = variationValueTypes.map(type => {
+                const allowed = allowedTypeIds && allowedTypeIds.length
+                    ? variationValueTypes.filter(type => allowedTypeIds.map(id => String(id)).includes(String(type.id)))
+                    : variationValueTypes;
+                const options = allowed.map(type => {
                     const isSelected = selected && String(type.id) === selected ? 'selected' : '';
                     return `<option value="${type.id}" ${isSelected}>${escapeHtml(type.name || '')}</option>`;
                 }).join('');
@@ -581,6 +628,50 @@
                     acc[item.id] = item;
                     return acc;
                 }, {});
+            }
+
+            function mapByProductId(items) {
+                return (items || []).reduce((acc, item) => {
+                    acc[item.id] = item;
+                    return acc;
+                }, {});
+            }
+
+            function getAvailableVariationTypeIds(rawMaterial) {
+                if (!rawMaterial) {
+                    return [];
+                }
+
+                if (Array.isArray(rawMaterial.available_variation_type_ids) && rawMaterial.available_variation_type_ids.length) {
+                    return rawMaterial.available_variation_type_ids;
+                }
+
+                if (!Array.isArray(rawMaterial.items)) {
+                    return [];
+                }
+
+                const typeSet = {};
+                rawMaterial.items.forEach(item => {
+                    const variation = item.variation || {};
+                    const variationValues = variation.variation_values || variation.variationValues || [];
+                    variationValues.forEach(value => {
+                        const typeId = parseInt(value.pm_variation_value_type_id, 10);
+                        if (!Number.isNaN(typeId)) {
+                            typeSet[typeId] = true;
+                        }
+                    });
+
+                    const variationValue = item.variation_value || item.variationValue;
+                    if (variationValue && variationValue.pm_variation_value_type_id) {
+                        const typeId = parseInt(variationValue.pm_variation_value_type_id, 10);
+                        if (!Number.isNaN(typeId)) {
+                            typeSet[typeId] = true;
+                        }
+                    }
+                });
+                return Object.keys(typeSet)
+                    .map(id => parseInt(id, 10))
+                    .filter(id => !Number.isNaN(id));
             }
 
             function getCategoryLabel(mainCategory, subCategory) {
@@ -608,6 +699,54 @@
                     return '';
                 }
                 return $('<div>').text(text).html();
+            }
+
+            function initializeRawMaterialSelect(forceRefresh = false) {
+                if (!$rawMaterialSelect.length || !$.fn.select2) {
+                    return;
+                }
+                if (forceRefresh && $rawMaterialSelect.data('select2')) {
+                    $rawMaterialSelect.select2('destroy');
+                }
+                if (!$rawMaterialSelect.data('select2')) {
+                    $rawMaterialSelect.select2({
+                        placeholder: '-- Select raw material --',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownParent: $ingredientModal
+                    });
+                }
+            }
+
+            function destroySelect2Instances() {
+                if ($rawMaterialSelect.length && $rawMaterialSelect.data('select2')) {
+                    $rawMaterialSelect.select2('destroy');
+                }
+                $('#modalIngredientTableBody .variation-type-select').each(function() {
+                    const $select = $(this);
+                    if ($select.data('select2')) {
+                        $select.select2('destroy');
+                    }
+                });
+            }
+
+            function applySelect2ToVariationSelects(forceRefresh = false) {
+                if (!$.fn.select2) {
+                    return;
+                }
+                $('#modalIngredientTableBody .variation-type-select').each(function() {
+                    const $select = $(this);
+                    if (forceRefresh && $select.data('select2')) {
+                        $select.select2('destroy');
+                    }
+                    if (!$select.data('select2')) {
+                        $select.select2({
+                            placeholder: '-- Select type --',
+                            width: '100%',
+                            dropdownParent: $ingredientModal
+                        });
+                    }
+                });
             }
         })();
     </script>
