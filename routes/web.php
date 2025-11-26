@@ -333,4 +333,22 @@ Route::get('/printGeneratedSalarySlip/{userName}/{companyWorkingDay_count}/{empl
 ///////////////////////////////////////////////// SALARY CONTROLLER END HERE ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+//Order Management
+Route::get('/adminOrderManagement', 'OrderManagementController@adminOrderManagementIndex')->middleware('userAuth:adminOrderManagement');
+Route::get('/createOrders', 'OrderManagementController@createOrders')->name('createOrders')->middleware('userAuth:createOrders');
 
+
+//Stock Management
+Route::get('/adminStockManagement', 'StockManagementController@adminStockManagementIndex')->name('adminStockManagementIndex')->middleware('userAuth:adminStockManagement');
+Route::get('/admingrn', 'StockManagementController@admingrn')->name('admingrn')->middleware('userAuth:admingrn');
+
+//Dashboard Management
+Route::get('/adminDashboard', 'DashboardManagementController@adminDashboard')->name('adminDashboard')->middleware('userAuth:adminDashboard');
+
+
+//Pos Management
+Route::get('/pos-view', 'PosManagementController@posView')->name('posView');
+
+//Report
+Route::get('/adminsalesreport', 'ReportController@adminSalesReportIndex')->name('adminSalesReportIndex')->middleware('userAuth:adminSalesReport');
+Route::get('/adminstockreport', 'ReportController@adminStockReportIndex')->name('adminStockReportIndex')->middleware('userAuth:adminStockReport');

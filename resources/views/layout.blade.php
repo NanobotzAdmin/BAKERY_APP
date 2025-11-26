@@ -138,7 +138,7 @@
                     </div>-->
                     </li>
                     <li style="color: #ff9900; font-family: 'Lato', sans-serif; letter-spacing: 1px;">
-                        <a href="/admindashboard"><i class="fa fa-th-large"></i> <span
+                        <a href="{{ route('adminDashboard') }}"><i class="fa fa-th-large"></i> <span
                                 class="nav-label">Dashboard</span></a>
                     </li>
                     @php

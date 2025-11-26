@@ -59,7 +59,7 @@ class LoginController extends Controller
                     $userActivity = new UserActivityManagementController();
                     $userActivity->saveActivity(STATIC_DATA_MODEL::$logIn, "log User ,User Id - " .  $user->id);
 
-                    return redirect('/admindashboard');
+                    return redirect(route('adminDashboard'));
 
                 } else {
 
@@ -86,7 +86,7 @@ class LoginController extends Controller
                     $userActivity = new UserActivityManagementController();
                     $userActivity->saveActivity(STATIC_DATA_MODEL::$logIn, "log User ,User Id - " .  $user->id);
 
-                    return redirect('/admindashboard');
+                    return redirect(route('adminDashboard'));
                 }
 
             } else {
