@@ -336,6 +336,7 @@ Route::get('/printGeneratedSalarySlip/{userName}/{companyWorkingDay_count}/{empl
 //Order Management
 Route::get('/adminOrderManagement', 'OrderManagementController@adminOrderManagementIndex')->middleware('userAuth:adminOrderManagement');
 Route::get('/createOrders', 'OrderManagementController@createOrders')->name('createOrders')->middleware('userAuth:createOrders');
+Route::get('/createPurchaseOrders', 'OrderManagementController@createPurchaseOrders')->name('createPurchaseOrders')->middleware('userAuth:createPurchaseOrders');
 
 
 //Stock Management

@@ -16,4 +16,9 @@ class OrderManagementController extends Controller
     {
         return view('orderManagement.createOrders');
     }
+
+    public function createPurchaseOrders()
+    {
+        return view('orderManagement.createPurchaseOrder');
+    }
 }
