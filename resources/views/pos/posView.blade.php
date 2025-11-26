@@ -188,10 +188,14 @@
         text-overflow: ellipsis;
     }
 
-    .product-price {
+    .product-card .product-price {
         color: var(--primary-color);
         font-weight: 700;
         font-size: 1.1rem;
+        background: transparent;
+        position: static;
+        padding: 0;
+        display: block;
     }
 
     /* Right Side: Cart */
