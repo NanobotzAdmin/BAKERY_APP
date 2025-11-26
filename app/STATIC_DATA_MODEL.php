@@ -79,4 +79,35 @@ class STATIC_DATA_MODEL
     public static $orderTakePending = 0;
     public static $orderTakeCompleted = 1;
     public static $orderTakeDeleted = 3;
+
+    // Variation Value Types
+    public static $variationValueType = [
+        [
+            'id' => 1,
+            'name' => 'l'
+        ],
+        [
+            'id' => 2,
+            'name' => 'ml'
+        ],
+        [
+            'id' => 3,
+            'name' => 'g'
+        ],
+        [
+            'id' => 4,
+            'name' => 'kg'
+        ]
+    ];
+
+    public static $productItemTypes = [
+        [
+            'id' => 1,
+            'name' => 'Selling Product'
+        ],
+        [
+            'id' => 2,
+            'name' => 'Row Material'
+        ]
+    ];
 }

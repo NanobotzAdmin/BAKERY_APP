@@ -19,7 +19,7 @@ class CheckLoggedIn
     public function handle($request, Closure $next, $role)
     {
         // Check for admin dashboard access
-        if ($role === 'admindashboard') {
+        if ($role === 'adminDashboard') {
             if (session('logged_user_id') === null) {
                 return redirect('/admin_login');
             } else {
@@ -52,7 +52,7 @@ class CheckLoggedIn
                 if (in_array($role, $arrayBlockExtent)) {
                     return $next($request);
                 } else {
-                    return redirect('admindashboard');
+                    return redirect(route('adminDashboard'));
                 }
             }
         }

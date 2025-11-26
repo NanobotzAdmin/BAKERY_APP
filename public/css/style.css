@@ -2014,7 +2014,7 @@ button:focus {
 }
 
 .btn-primary.btn-outline {
-    color: #1ab394;
+    color: #4d3521;
 }
 
 .btn-success.btn-outline {
@@ -2051,23 +2051,23 @@ button:focus {
 
 .btn-primary {
     color: #fff;
-    background-color: #1ab394;
-    border-color: #1ab394;
+    background-color: #4d3521;
+    border-color: #4d3521;
 }
 
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary.focus {
-    background-color: #18a689;
-    border-color: #18a689;
+    background-color: #3b2717;
+    border-color: #3b2717;
     color: #FFFFFF;
 }
 
 .btn-primary.disabled,
 .btn-primary:disabled {
     color: #fff;
-    background-color: #18a689;
-    border-color: #18a689;
+    background-color: #4d3521;
+    border-color: #4d3521;
 }
 
 .btn-primary:not(:disabled):not(.disabled):active,
@@ -11898,4 +11898,165 @@ body.md-skin {
     #page-wrapper {
         margin: 0;
     }
+}
+
+
+.table-hover tbody tr:hover {
+    background-color: #faf6ec;
+    color: #000;
+    transition: background-color 0.2s;
+}
+
+.table th {
+    text-align: start;
+    vertical-align: middle !important;
+}
+
+.variation-values-container {
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #e7eaec;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.variation-value-item {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #e7eaec;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.variation-value-item.selected {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.product-variation-row {
+    border: 1px solid #e7eaec;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f8f9fa;
+}
+
+.variation-card {
+    border: 2px solid #e7eaec;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.variation-card:hover {
+    border-color: #4d3521;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+}
+
+.variation-card.selected {
+    border-color: #4d3521;
+    background-color: #f0f8ff;
+}
+
+.variation-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.variation-card-header input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.variation-card-header label {
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0;
+    cursor: pointer;
+    flex: 1;
+}
+
+.price-fields-container {
+    display: none;
+}
+
+.price-fields-container.show {
+    display: block;
+}
+
+/* SweetAlert Button Fix */
+.swal-button-container {
+    display: flex !important;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+ /* Ensure Select2 dropdowns display above the modal */
+ .modal-open .select2-container {
+    z-index: 9999;
+}
+
+.modal-open .select2-container .select2-dropdown {
+    z-index: 9999;
+}
+
+.select2-container--default .select2-selection--single {
+    height: 38px;
+    padding: 6px 12px;
+    border: 1px solid #e5e6e7;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 17px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 36px;
+}
+
+
+/* Order Type Identifiers */
+.order-type-manual {
+    border-left: 4px solid #28a745; /* Green for Manual */
+    background-color: #f4fdf6;
+}
+.order-type-branch {
+    border-left: 4px solid #007bff; /* Blue for Branch */
+    background-color: #f0f7fd;
+}
+.order-type-auto {
+    border-left: 4px solid #6f42c1; /* Purple for Auto */
+    background-color: #f9f5ff;
+}
+
+/* Modern Status Badges */
+.badge-status {
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.status-pending { background-color: #ffeeba; color: #856404; }
+.status-baking { background-color: #cce5ff; color: #004085; }
+.status-ready { background-color: #d4edda; color: #155724; }
+
+/* Tab Navigation Styling */
+.nav-tabs .nav-link {
+    color: #676a6c;
+    font-weight: 600;
+    border: none;
+    border-bottom: 3px solid transparent;
+}
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    border-bottom: 3px solid #007bff;
+    background: transparent;
 }

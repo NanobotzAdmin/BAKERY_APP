@@ -14,14 +14,38 @@
         .table-hover tbody tr:hover {
             background-color: #faf6ec;
             color: #000;
-            /* Light blue color - adjust as needed */
             transition: background-color 0.2s;
-            /* Add a smooth transition effect */
         }
 
         .table th {
-            text-align: center; /* Horizontally center the text */
-            vertical-align: middle !important; /* Vertically center the text */
+            text-align: center;
+            vertical-align: middle !important;
+        }
+        
+        .product-type-selling {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+        }
+        
+        .product-type-raw {
+            background-color: #fff4e6;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .badge-selling {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .badge-raw {
+            background-color: #ff9800;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
         }
     </style>
 
@@ -48,184 +72,10 @@
             <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
             @include('include.flash')
             @include('include.errors')
-
-            <!-- Modal -->
-            <div class="modal fade" id="mainProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="exampleModalLabel">Create New Main Category</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form action="saveMainCategory" method="POST">
-                            {{ csrf_field() }}
-                            <div class="modal-body">
-
-                                <div class="form-group">
-                                    <label for="category"> Main Category Name</label>
-                                    <input type="text" class="form-control" id="category" name="category" value="{{ old('category') }}" autocomplete="off">
-                                </div>
-
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="ibox">
-                <div class="ibox-title">
-                    <h5>Manage Main Categories</h5>
-                </div>
-                <div class="ibox-content">
-                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#mainProduct">Create New Main Category</button>
-                </div>
-                <div class="ibox-content">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover dataTables-example" style="font-family: 'Lato', sans-serif;">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Main Category Name</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $id = 0; ?>
-                                @foreach ($MainCategory as $category)
-                                    <?php $id++; ?>
-                                    <tr>
-                                        <td><?php echo $id; ?></td>
-                                        <td>{{ $category->main_category_name }}</td>
-                                        @if ($category->is_active == 1)
-                                            <td style="min-width: 90px; color: #1ab394; text-align: center;"><span
-                                                    class="badge"
-                                                    style="color: #28a745; background-color: #e2f5e6;">Active</span></td>
-                                        @else
-                                            <td style="min-width: 90px; color: #e70000; text-align: center;"><span
-                                                    class="badge"
-                                                    style="color: #dc3545; background-color: #fceff0;">Inactive</span></td>
-                                        @endif
-                                        <td>
-                                            <button type="button" class="btn btn-outline-warning btn-xs"
-                                                data-toggle="modal" data-target="#updateMainCategory"
-                                                onclick="showCategoryUpdateModal({{ $category->id }},'mainCategory')"><i
-                                                    class="fa fa-pencil-square-o" aria-hidden="true"></i>&nbsp;
-                                                Update</button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="updateMainCategory" tabindex="-1" role="dialog"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content" id="modelContentCategory">
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
         </div>
     </div>
-    <!------------ ////////////// SUB CATEGORY BEGIN HERE ///////////////////////// -->
 
-    <div class="row">
-        <div class="col-sm-12">
 
-            <!-- Modal -->
-            <div class="modal fade" id="subProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="exampleModalLabel">Create New Product</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form method="POST" action="saveSubCategory">
-                            {{ csrf_field() }}
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label for="sCategory">Product Name</label>
-                                    <input type="text" class="form-control form-control-sm" id="sCategory" name="subCategoryName" value="{{ old('subCategoryName') }}" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                    <label for="productCode">Product Code</label>
-                                    <input type="text" class="form-control form-control-sm" id="productCode" name="productCode" value="{{ old('productCode') }}" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                    <label for="category">Main Category</label>
-                                    <select class="select2 form-control form-control-sm" name="mainCategorySelect" value="{{ old('mainCategorySelect') }}">
-                                        <option value="0">-- Select One --</option>
-                                        @foreach ($mainActiveCategory as $ActiveCategory)
-                                            <option value="{{ $ActiveCategory->id }}">
-                                                {{ $ActiveCategory->main_category_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="duration">Expire Duration</label>
-                                    <input type="number" class="form-control form-control-sm" id="duration" name="duration" value="{{ old('duration') }}" maxlength="12" autocomplete="off">
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="">Selling Price</label>
-                                        <input type="text" class="form-control form-control-sm" name="sellingPrice" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="">Retail Price</label>
-                                        <input type="text" class="form-control form-control-sm" name="retailPrice" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="">Actual Cost</label>
-                                        <input type="text" class="form-control form-control-sm" name="actualCost" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="">Discounted Price</label>
-                                        <input type="text" class="form-control form-control-sm" name="discountedPrice" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="">Discountable Qty</label>
-                                        <input type="text" class="form-control form-control-sm" name="discountedQty" maxlength="12" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="">Sequence No</label>
-                                        <input type="text" class="form-control form-control-sm" name="sequenceNo" maxlength="2" oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" autocomplete="off">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Save Product</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <div class="row">
@@ -235,38 +85,86 @@
                     <h5>Manage Products</h5>
                 </div>
                 <div class="ibox-content">
-                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#subProduct">Create New product</button>
-                </div>
-                <div class="ibox-content">
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <a href="{{ url('/adminProductRegistration') }}" class="btn btn-sm btn-primary">
+                                <i class="fa fa-plus"></i> Product Registration
+                            </a>
+                            <a href="{{ url('/adminCategoryVariationManagement') }}" class="btn btn-sm btn-info">
+                                <i class="fa fa-cog"></i> Category & Variation Management
+                            </a>
+                        </div>
+                        <div class="col-sm-6 text-right">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="filterProducts('all')">All</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="filterProducts('selling')">Selling Products</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="filterProducts('raw')">Raw Materials</button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover dataTables-example" style="font-family: 'Lato', sans-serif;">
+                        <table class="table table-bordered table-hover dataTables-example" id="productsTable" style="font-family: 'Lato', sans-serif;">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Product</th>
+                                    <th>Product Type</th>
+                                    <th>Product Item Name</th>
+                                    <th>Bin Code</th>
                                     <th>Main Category</th>
-                                    <th>Product Code</th>
-                                    <th>Expire Duration</th>
-                                    <th>Sequence Number</th>
+                                    <th>Sub Category</th>
+                                    <th>Variation</th>
+                                    <th>Variation Value</th>
+                                    <th>Selling Price</th>
+                                    <th>Cost Price</th>
                                     <th>Status</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $id = 0; ?>
-                                @foreach ($subCategory as $subCatogories)
-                                    <?php
-                                    $mainCategory = App\MainCategory::find($subCatogories->pm_product_main_category_id);
-                                    $id++;
+                                <?php 
+                                    $id = 0;
+                                    $productItemTypes = [];
+                                    foreach (\App\STATIC_DATA_MODEL::$productItemTypes as $type) {
+                                        $productItemTypes[$type['id']] = $type['name'];
+                                    }
+                                ?>
+                                @foreach ($productItems as $productItem)
+                                    <?php 
+                                        $id++;
+                                        $productTypeId = $productItem->pm_product_item_type_id;
+                                        $productTypeName = isset($productItemTypes[$productTypeId]) ? $productItemTypes[$productTypeId] : 'N/A';
+                                        $isSelling = $productTypeId == 1;
+                                        $rowClass = $isSelling ? 'product-type-selling' : 'product-type-raw';
                                     ?>
-                                    <tr>
+                                    <tr class="{{ $rowClass }}" data-product-type="{{ $isSelling ? 'selling' : 'raw' }}">
                                         <td>{{ $id }}</td>
-                                        <td>{{ $subCatogories->sub_category_name }}</td>
-                                        <td>{{ $mainCategory->main_category_name }}</td>
-                                        <td>{{ $subCatogories->product_code }}</td>
-                                        <td style="text-align: center;"><?php echo isset($subCatogories->expire_in_days) ? $subCatogories->expire_in_days : '0'; ?></td>
-                                        <td style="text-align: center;">{{ $subCatogories->sequence_no }}</td>
-                                        @if ($subCatogories->is_active == 1)
+                                        <td>
+                                            @if($isSelling)
+                                                <span class="badge-selling">Selling Product</span>
+                                            @else
+                                                <span class="badge-raw">Raw Material</span>
+                                            @endif
+                                        </td>
+                                        <td><strong>{{ $productItem->product_item_name }}</strong></td>
+                                        <td>{{ $productItem->bin_code }}</td>
+                                        <td>{{ $productItem->mainCategory ? $productItem->mainCategory->main_category_name : 'N/A' }}</td>
+                                        <td>{{ $productItem->subCategory ? $productItem->subCategory->sub_category_name : 'N/A' }}</td>
+                                        <td>{{ $productItem->variation ? $productItem->variation->variation_name : 'N/A' }}</td>
+                                        <td>{{ $productItem->variationValue ? ($productItem->variationValue->variation_value_name ? $productItem->variationValue->variation_value_name : $productItem->variationValue->variation_value) : 'N/A' }}</td>
+                                        <td>
+                                            @if($isSelling && $productItem->selling_price)
+                                                {{ number_format($productItem->selling_price, 2) }}
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($isSelling && $productItem->cost_price)
+                                                {{ number_format($productItem->cost_price, 2) }}
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        @if ($productItem->status == App\STATIC_DATA_MODEL::$Active)
                                             <td style="min-width: 90px; color: #1ab394; text-align: center;"><span
                                                     class="badge"
                                                     style="color: #28a745; background-color: #e2f5e6;">Active</span></td>
@@ -275,28 +173,11 @@
                                                     class="badge"
                                                     style="color: #dc3545; background-color: #fceff0;">Inactive</span></td>
                                         @endif
-                                        <td>
-                                            <button type="button" class="btn btn-outline-warning btn-xs"
-                                                data-toggle="modal" data-target="#updateMainCategory"
-                                                onclick="showCategoryUpdateModal({{ $subCatogories->id }},'subCategory')"><i
-                                                    class="fa fa-pencil-square-o" aria-hidden="true"></i>&nbsp;
-                                                Update</button>
-                                            @if ($subCatogories->is_active == App\STATIC_DATA_MODEL::$Active)
-                                                <button type="button" class="btn btn-outline-danger btn-xs"
-                                                    onclick="subCatogoryStatusChange({{ $subCatogories->id }})">Deactivate</button>
-                                            @else
-                                                <button type="button" class="btn btn-outline-success btn-xs"
-                                                    onclick="subCatogoryStatusChange({{ $subCatogories->id }})">&nbsp;
-                                                    Activate&nbsp;&nbsp;</button>
-                                            @endif
-                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-                    <!-- Modal -->
-
                 </div>
             </div>
         </div>
@@ -305,82 +186,25 @@
 
 @section('footer')
     <script>
+        var table;
         $(document).ready(function() {
-            $('.dataTables-example').DataTable({
+            table = $('#productsTable').DataTable({
                 pageLength: 25,
                 responsive: true,
                 dom: '<"html5buttons"B>lTfgitp',
-                buttons: []
+                buttons: [],
+                order: [[1, 'asc']] // Sort by Product Type
             });
         });
 
-
-        function showCategoryUpdateModal(CategoryId, categoryType) {
-            var csrf_token = $("#csrf_token").val();
-            jQuery.ajax({
-                url: "{{ url('/loadCategoryDataToModal') }}",
-                type: "POST",
-                data: {
-                    "_token": csrf_token,
-                    "CategoryId": CategoryId,
-                    "categoryType": categoryType
-                },
-                beforeSend: function() {
-                    showLder();
-                },
-                complete: function() {},
-                error: function(data) {},
-                success: function(data) {
-                    hideLder();
-                    $('#modelContentCategory').html(data);
-                }
-            });
-        }
-
-
-        // sub-Catogory Status Change
-        function subCatogoryStatusChange(subCatID) {
-            var csrf_token = $("#csrf_token").val();
-            jQuery.ajax({
-                url: "{{ url('/subCatogoryStatusChange') }}",
-                type: "POST",
-                data: {
-                    "_token": csrf_token,
-                    "subCatID": subCatID,
-                },
-                beforeSend: function() {
-                    showLder();
-                },
-                complete: function() {},
-                error: function(data) {},
-                success: function(data) {
-                    hideLder();
-                    var messageTitle;
-                    var messageBody;
-
-                    if (data.msg === 'Sub-Category Deactivated') {
-                        messageTitle = 'Deactivated';
-                        messageBody = 'Product successfully deactivated.';
-                    } else if (data.msg === 'Sub-Category Activated') {
-                        messageTitle = 'Activated';
-                        messageBody = 'Product successfully activated.';
-                    } else {
-                        messageBody = 'Operation Error...';
-                    }
-
-                    swal({
-                            title: messageTitle,
-                            text: messageBody,
-                            type: "success",
-                            showConfirmButton: false, // Hide the OK button
-                            timer: 1500, // Set the duration for 1.5 seconds
-                        },
-                        function() {
-                            location.reload();
-                        }
-                    );
-                }
-            });
+        function filterProducts(type) {
+            if (type === 'all') {
+                table.column(1).search('').draw();
+            } else if (type === 'selling') {
+                table.column(1).search('Selling Product').draw();
+            } else if (type === 'raw') {
+                table.column(1).search('Raw Material').draw();
+            }
         }
     </script>
 @endsection
