@@ -10,7 +10,15 @@
         $productName = $material->product_name ?? 'N/A';
         $productCode = $material->product_code ?? 'N/A';
         $label = $productName . ' (' . $productCode . ')';
-        $rawMaterialOptionHtml .= '<option value="' . $material->id . '">' . e($label) . '</option>';
+        $rawMaterialOptionHtml .= '<option value="' . $material->id . '" data-type="raw">' . e($label) . '</option>';
+    }
+
+    $semiFinishedOptionHtml = '';
+    foreach ($semiFinishedIngredients as $sfIngredient) {
+        $productName = $sfIngredient->product_name ?? 'N/A';
+        $productCode = $sfIngredient->product_code ?? 'N/A';
+        $label = $productName . ' (' . $productCode . ')';
+        $semiFinishedOptionHtml .= '<option value="' . $sfIngredient->id . '" data-type="semi">' . e($label) . '</option>';
     }
 
     $variationValueTypeMap = $variationValueTypeMap ?? [];
@@ -20,7 +28,7 @@
 @extends('layout', ['pageId' => $privilageId->pageId, 'grupId' => $privilageId->grupId])
 
 @section('content')
-    
+
     <style>
         .ingredient-card {
             border-left: 4px solid #1ab394;
@@ -45,6 +53,7 @@
         #productIngredientTable td {
             vertical-align: middle;
         }
+
         #productIngredientTable td {
             vertical-align: middle;
         }
@@ -52,12 +61,11 @@
         /* ADD THIS NEW CLASS */
         @media (min-width: 768px) {
             .modal-wide {
-                max-width: 70% !important; /* Adjust this percentage as needed (e.g., 95%) */
+                max-width: 70% !important;
+                /* Adjust this percentage as needed (e.g., 95%) */
                 width: 90% !important;
             }
         }
-
-       
     </style>
 
     <div class="row wrapper border-bottom white-bg page-heading">
@@ -91,81 +99,157 @@
         <div class="col-sm-12">
             <div class="ibox">
                 <div class="ibox-title text-dark">
-                    <h5>Build Ingredients for Selling Products</h5>
+                    <h5>Manage Ingredients</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="row mb-3">
                         <div class="col">
                             <p class="text-dark mb-0">
-                                Review the selling products below and click <strong>Manage Ingredients</strong> to
-                                configure the raw materials required for each item.
+                                Select a product type tab below and click <strong>Manage Ingredients</strong> to configure
+                                the required ingredients.
                             </p>
                         </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered" id="sellingProductsTable">
-                            <thead class="text-dark">
-                                <tr>
-                                    <th style="width: 60px;" class="text-center">#</th>
-                                    <th>Selling Product</th>
-                                    {{-- <th>Variation</th> --}}
-                                    <th>Variation Value</th>
-                                    <th>Category</th>
-                                    <th style="width: 180px;" class="text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($sellingProducts as $index => $product)
-                                    <tr data-product-id="{{ $product->id }}">
-                                        <td class="align-middle text-center font-weight-bold">{{ $index + 1 }}</td>
-                                        <td class="align-middle">
-                                            <div class="font-weight-bold text-dark">{{ $product->product_item_name ?? 'N/A' }}</div>
-                                            <div class="text-muted small">Bin: {{ $product->bin_code ?? 'N/A' }}</div>
-                                        </td>
-                                        {{-- <td class="align-middle">
-                                            {{ optional($product->variation)->variation_name ?? 'N/A' }}
-                                        </td> --}}
-                                        <td class="align-middle">
-                                            @php
-                                                $variationValue = $product->variationValue;
-                                                $variationValueLabel = 'N/A';
-                                                if ($variationValue) {
-                                                    $typeLabel = 'N/A';
-                                                    if (!empty($variationValue->pm_variation_value_type_id)) {
-                                                        $typeId = $variationValue->pm_variation_value_type_id;
-                                                        $typeLabel = $variationValueTypeMap[$typeId]['name'] ?? 'N/A';
-                                                    }
-                                                    $variationValueLabel = trim(($variationValue->variation_value_name ?? '') . ' ' . ($variationValue->variation_value ? '(' . $variationValue->variation_value . ' ' . $typeLabel . ')' : ''));
-                                                    $variationValueLabel = $variationValueLabel ?: 'N/A';
-                                                }
-                                            @endphp
-                                            {{ $variationValueLabel }}
-                                        </td>
-                                        <td class="align-middle">
-                                            @php
-                                                $mainCategory = optional($product->mainCategory)->main_category_name ?? 'N/A';
-                                                $subCategory = optional($product->subCategory)->sub_category_name ?? 'N/A';
-                                            @endphp
-                                            {{ $mainCategory }} / {{ $subCategory }}
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            <button type="button"
-                                                class="btn btn-xs btn-primary manage-ingredient-btn"
-                                                data-product-id="{{ $product->id }}">
-                                                <i class="fa fa-cutlery"></i> Manage Ingredients
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">
-                                            No selling products are available. Please register selling products first.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="selling-tab" data-toggle="tab" href="#selling" role="tab"
+                                aria-controls="selling" aria-selected="true">Selling Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="semi-tab" data-toggle="tab" href="#semi" role="tab" aria-controls="semi"
+                                aria-selected="false">Semi-Finished Products</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content mt-3" id="productTabsContent">
+                        <!-- Selling Products Tab -->
+                        <div class="tab-pane fade show active" id="selling" role="tabpanel" aria-labelledby="selling-tab">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered" id="sellingProductsTable">
+                                    <thead class="text-dark">
+                                        <tr>
+                                            <th style="width: 60px;" class="text-center">#</th>
+                                            <th>Selling Product</th>
+                                            <th>Variation Value</th>
+                                            <th>Category</th>
+                                            <th style="width: 180px;" class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($sellingProducts as $index => $product)
+                                            <tr data-product-id="{{ $product->id }}">
+                                                <td class="align-middle text-center font-weight-bold">{{ $index + 1 }}</td>
+                                                <td class="align-middle">
+                                                    <div class="font-weight-bold text-dark">
+                                                        {{ $product->product_item_name ?? 'N/A' }}</div>
+                                                    <div class="text-muted small">Bin: {{ $product->bin_code ?? 'N/A' }}</div>
+                                                </td>
+                                                <td class="align-middle">
+                                                    @php
+                                                        $variationValue = $product->variationValue;
+                                                        $variationValueLabel = 'N/A';
+                                                        if ($variationValue) {
+                                                            $typeLabel = 'N/A';
+                                                            if (!empty($variationValue->pm_variation_value_type_id)) {
+                                                                $typeId = $variationValue->pm_variation_value_type_id;
+                                                                $typeLabel = $variationValueTypeMap[$typeId]['name'] ?? 'N/A';
+                                                            }
+                                                            $variationValueLabel = trim(($variationValue->variation_value_name ?? '') . ' ' . ($variationValue->variation_value ? '(' . $variationValue->variation_value . ' ' . $typeLabel . ')' : ''));
+                                                            $variationValueLabel = $variationValueLabel ?: 'N/A';
+                                                        }
+                                                    @endphp
+                                                    {{ $variationValueLabel }}
+                                                </td>
+                                                <td class="align-middle">
+                                                    @php
+                                                        $mainCategory = optional($product->mainCategory)->main_category_name ?? 'N/A';
+                                                        $subCategory = optional($product->subCategory)->sub_category_name ?? 'N/A';
+                                                    @endphp
+                                                    {{ $mainCategory }} / {{ $subCategory }}
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <button type="button" class="btn btn-xs btn-primary manage-ingredient-btn"
+                                                        data-product-id="{{ $product->id }}" data-product-type="selling">
+                                                        <i class="fa fa-cutlery"></i> Manage Ingredients
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">
+                                                    No selling products are available.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Semi-Finished Products Tab -->
+                        <div class="tab-pane fade" id="semi" role="tabpanel" aria-labelledby="semi-tab">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered" id="semiFinishedProductsTable">
+                                    <thead class="text-dark">
+                                        <tr>
+                                            <th style="width: 60px;" class="text-center">#</th>
+                                            <th>Semi-Finished Product</th>
+                                            <th>Variation Value</th>
+                                            <th>Category</th>
+                                            <th style="width: 180px;" class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($semiFinishedProducts as $index => $product)
+                                            <tr data-product-id="{{ $product->id }}">
+                                                <td class="align-middle text-center font-weight-bold">{{ $index + 1 }}</td>
+                                                <td class="align-middle">
+                                                    <div class="font-weight-bold text-dark">
+                                                        {{ $product->product_item_name ?? 'N/A' }}</div>
+                                                    <div class="text-muted small">Bin: {{ $product->bin_code ?? 'N/A' }}</div>
+                                                </td>
+                                                <td class="align-middle">
+                                                    @php
+                                                        $variationValue = $product->variationValue;
+                                                        $variationValueLabel = 'N/A';
+                                                        if ($variationValue) {
+                                                            $typeLabel = 'N/A';
+                                                            if (!empty($variationValue->pm_variation_value_type_id)) {
+                                                                $typeId = $variationValue->pm_variation_value_type_id;
+                                                                $typeLabel = $variationValueTypeMap[$typeId]['name'] ?? 'N/A';
+                                                            }
+                                                            $variationValueLabel = trim(($variationValue->variation_value_name ?? '') . ' ' . ($variationValue->variation_value ? '(' . $variationValue->variation_value . ' ' . $typeLabel . ')' : ''));
+                                                            $variationValueLabel = $variationValueLabel ?: 'N/A';
+                                                        }
+                                                    @endphp
+                                                    {{ $variationValueLabel }}
+                                                </td>
+                                                <td class="align-middle">
+                                                    @php
+                                                        $mainCategory = optional($product->mainCategory)->main_category_name ?? 'N/A';
+                                                        $subCategory = optional($product->subCategory)->sub_category_name ?? 'N/A';
+                                                    @endphp
+                                                    {{ $mainCategory }} / {{ $subCategory }}
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <button type="button" class="btn btn-xs btn-primary manage-ingredient-btn"
+                                                        data-product-id="{{ $product->id }}" data-product-type="semi">
+                                                        <i class="fa fa-cutlery"></i> Manage Ingredients
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">
+                                                    No semi-finished products are available.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -195,8 +279,13 @@
                             <div class="form-group col-md-8">
                                 <label for="modalRawMaterialSelect">Raw Material</label>
                                 <select class="form-control" id="modalRawMaterialSelect">
-                                    <option value="">-- Select raw material --</option>
-                                    {!! $rawMaterialOptionHtml !!}
+                                    <option value="">-- Select ingredient --</option>
+                                    <optgroup label="Raw Materials">
+                                        {!! $rawMaterialOptionHtml !!}
+                                    </optgroup>
+                                    <optgroup label="Semi-Finished Products" id="semiFinishedOptGroup">
+                                        {!! $semiFinishedOptionHtml !!}
+                                    </optgroup>
                                 </select>
                             </div>
                             <div class="form-group col-md-4 d-flex align-items-end">
@@ -205,7 +294,8 @@
                                 </button>
                             </div>
                         </div>
-                        <small class="text-muted">Add raw materials and then assign variation value types and values within the table below.</small>
+                        <small class="text-muted">Add raw materials and then assign variation value types and values within
+                            the table below.</small>
                     </div>
                     <div id="modalIngredientEmptyState" class="ingredient-empty text-center text-muted py-3 rounded">
                         No raw materials added yet. Use the form above to start building the ingredient list.
@@ -237,52 +327,67 @@
 @endsection
 
 @section('footer')
-    
+
     <script>
-        (function() {
+        (function () {
             const sellingProducts = @json($sellingProducts);
+            const semiFinishedProducts = @json($semiFinishedProducts);
             const rawMaterials = @json($rawMaterials);
+            const semiFinishedIngredients = @json($semiFinishedIngredients);
             const variationValueTypes = @json($variationValueTypes);
+
             const sellingProductMap = mapByProductId(sellingProducts);
+            const semiFinishedProductMap = mapByProductId(semiFinishedProducts);
+
+            // Combine maps for easy lookup
+            const allProductMap = { ...sellingProductMap, ...semiFinishedProductMap };
+
             const rawMaterialMap = mapById(rawMaterials);
+            const semiFinishedIngredientMap = mapById(semiFinishedIngredients);
+
+            // Combined ingredient map
+            const allIngredientMap = { ...rawMaterialMap, ...semiFinishedIngredientMap };
+
             const csrfToken = '{{ csrf_token() }}';
             const ingredientFetchBaseUrl = '{{ url('/productIngredients') }}';
             const productIngredientStore = {};
             const $ingredientModal = $('#ingredientModal');
             const $rawMaterialSelect = $('#modalRawMaterialSelect');
             let activeProductId = null;
+            let activeProductType = null;
 
-            $('.manage-ingredient-btn').on('click', function() {
+            $('.manage-ingredient-btn').on('click', function () {
                 const productId = $(this).data('productId');
-                openIngredientModal(productId);
+                const productType = $(this).data('productType'); // 'selling' or 'semi'
+                openIngredientModal(productId, productType);
             });
 
-            $('#modalAddIngredientBtn').on('click', function() {
+            $('#modalAddIngredientBtn').on('click', function () {
                 addIngredientToState();
             });
 
-            $('#modalSaveIngredientsBtn').on('click', function() {
+            $('#modalSaveIngredientsBtn').on('click', function () {
                 saveActiveProductIngredients();
             });
 
-            $(document).on('click', '.modal-remove-ingredient', function() {
+            $(document).on('click', '.modal-remove-ingredient', function () {
                 const rawMaterialId = $(this).data('rawMaterialId');
                 removeIngredientFromState(rawMaterialId);
             });
 
-            $(document).on('change', '.variation-type-select', function() {
+            $(document).on('change', '.variation-type-select', function () {
                 const rawMaterialId = $(this).data('rawMaterialId');
                 const value = $(this).val();
                 updateIngredientField(rawMaterialId, 'variation_value_type_id', value);
             });
 
-            $(document).on('input', '.variation-value-input', function() {
+            $(document).on('input', '.variation-value-input', function () {
                 const rawMaterialId = $(this).data('rawMaterialId');
                 const value = $(this).val();
                 updateIngredientField(rawMaterialId, 'variation_value', value);
             });
 
-            $('#ingredientModal').on('hidden.bs.modal', function() {
+            $('#ingredientModal').on('hidden.bs.modal', function () {
                 resetModalForm();
                 toggleModalLoading(false);
                 $('#modalIngredientTableBody').empty();
@@ -291,13 +396,13 @@
                 $('#modalSaveIngredientsBtn').prop('disabled', true).html('<i class="fa fa-save"></i> Save Ingredients');
                 destroySelect2Instances();
             });
-            $('#ingredientModal').on('shown.bs.modal', function() {
+            $('#ingredientModal').on('shown.bs.modal', function () {
                 initializeRawMaterialSelect(true);
                 applySelect2ToVariationSelects(true);
             });
 
-            function openIngredientModal(productId) {
-                const product = sellingProductMap[productId];
+            function openIngredientModal(productId, productType) {
+                const product = allProductMap[productId];
 
                 if (!product) {
                     swal('Error', 'Unable to find the selected selling product.', 'error');
@@ -305,6 +410,7 @@
                 }
 
                 activeProductId = productId;
+                activeProductType = productType;
 
                 if (!productIngredientStore[productId]) {
                     productIngredientStore[productId] = {
@@ -335,12 +441,12 @@
                 $.ajax({
                     url: `${ingredientFetchBaseUrl}/${productId}`,
                     method: 'GET',
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status === 'success' && Array.isArray(response.ingredients)) {
                             productIngredientStore[productId].ingredients = response.ingredients.map(item => {
-                                const rawMaterial = rawMaterialMap[item.raw_material_id] || item.raw_material;
-                                if (rawMaterial && !rawMaterialMap[item.raw_material_id]) {
-                                    rawMaterialMap[item.raw_material_id] = rawMaterial;
+                                const rawMaterial = allIngredientMap[item.raw_material_id] || item.raw_material;
+                                if (rawMaterial && !allIngredientMap[item.raw_material_id]) {
+                                    allIngredientMap[item.raw_material_id] = rawMaterial;
                                 }
                                 const allowedTypeIds = getAvailableVariationTypeIds(rawMaterial);
                                 return {
@@ -354,14 +460,14 @@
                         }
                         productIngredientStore[productId].loadedFromServer = true;
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let message = 'Unable to load existing ingredients.';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             message = xhr.responseJSON.message;
                         }
                         swal('Error', message, 'error');
                     },
-                    complete: function() {
+                    complete: function () {
                         toggleModalLoading(false);
                         renderModalIngredients();
                     }
@@ -381,7 +487,7 @@
                     return;
                 }
 
-                const rawMaterial = rawMaterialMap[rawMaterialId];
+                const rawMaterial = allIngredientMap[rawMaterialId];
 
                 if (!rawMaterial) {
                     swal('Error', 'Unable to load raw material details.', 'error');
@@ -444,7 +550,7 @@
                 }
 
                 const invalidTypeSelections = productData.ingredients.some(ingredient => {
-                    const allowed = ingredient.allowed_variation_type_ids || getAvailableVariationTypeIds(ingredient.raw_material || rawMaterialMap[ingredient.raw_material_id]);
+                    const allowed = ingredient.allowed_variation_type_ids || getAvailableVariationTypeIds(ingredient.raw_material || allIngredientMap[ingredient.raw_material_id]);
                     if (!allowed || !allowed.length) {
                         return true;
                     }
@@ -485,18 +591,18 @@
                     data: {
                         products: payload
                     },
-                    success: function(response) {
+                    success: function (response) {
                         swal('Success', response.message || 'Ingredients saved successfully.', 'success');
                         $('#ingredientModal').modal('hide');
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let message = 'Failed to save product ingredients.';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             message = xhr.responseJSON.message;
                         }
                         swal('Error', message, 'error');
                     },
-                    complete: function() {
+                    complete: function () {
                         button.prop('disabled', false).html('<i class="fa fa-save"></i> Save Ingredients');
                     }
                 });
@@ -518,38 +624,38 @@
                 }
 
                 const rows = ingredients.map((ingredient, index) => {
-                    const material = ingredient.raw_material || rawMaterialMap[ingredient.raw_material_id] || {};
+                    const material = ingredient.raw_material || allIngredientMap[ingredient.raw_material_id] || {};
                     const allowedTypeIds = ingredient.allowed_variation_type_ids || getAvailableVariationTypeIds(material);
                     const typeOptions = buildVariationTypeOptions(ingredient.variation_value_type_id, allowedTypeIds);
                     const valueInput = formatVariationValueInput(ingredient.variation_value);
                     return `
-                        <tr>
-                            <td class="align-middle text-center">${index + 1}</td>
-                            <td>
-                                <div class="font-weight-bold">${escapeHtml(material.product_name || 'N/A')}</div>
-                                <div class="text-muted small">Code: ${escapeHtml(material.product_code || 'N/A')}</div>
-                            </td>
-                            <td class="align-middle">
-                                <input type="number"
-                                       class="form-control form-control-sm variation-value-input text-right"
-                                       data-raw-material-id="${material.id}"
-                                       min="0.01"
-                                       step="0.01"
-                                       placeholder="0.00"
-                                       value="${valueInput}">
-                            </td>
-                            <td class="align-middle">
-                                <select class="form-control form-control-sm variation-type-select" data-raw-material-id="${material.id}">
-                                    ${typeOptions}
-                                </select>
-                            </td>
-                            <td class="align-middle text-center">
-                                <button type="button" class="btn btn-xs btn-danger modal-remove-ingredient" data-raw-material-id="${material.id}">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
+                            <tr>
+                                <td class="align-middle text-center">${index + 1}</td>
+                                <td>
+                                    <div class="font-weight-bold">${escapeHtml(material.product_name || 'N/A')}</div>
+                                    <div class="text-muted small">Code: ${escapeHtml(material.product_code || 'N/A')}</div>
+                                </td>
+                                <td class="align-middle">
+                                    <input type="number"
+                                           class="form-control form-control-sm variation-value-input text-right"
+                                           data-raw-material-id="${material.id}"
+                                           min="0.01"
+                                           step="0.01"
+                                           placeholder="0.00"
+                                           value="${valueInput}">
+                                </td>
+                                <td class="align-middle">
+                                    <select class="form-control form-control-sm variation-type-select" data-raw-material-id="${material.id}">
+                                        ${typeOptions}
+                                    </select>
+                                </td>
+                                <td class="align-middle text-center">
+                                    <button type="button" class="btn btn-xs btn-danger modal-remove-ingredient" data-raw-material-id="${material.id}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
                 }).join('');
 
                 $('#modalIngredientTableBody').html(rows);
@@ -589,7 +695,7 @@
                 }
 
                 if (key === 'variation_value_type_id') {
-                    const allowed = ingredient.allowed_variation_type_ids || getAvailableVariationTypeIds(ingredient.raw_material || rawMaterialMap[rawMaterialId]);
+                    const allowed = ingredient.allowed_variation_type_ids || getAvailableVariationTypeIds(ingredient.raw_material || allIngredientMap[rawMaterialId]);
                     if (!allowed || !allowed.length || !allowed.map(id => String(id)).includes(String(value))) {
                         swal('', 'Selected variation value type is not available for this raw material.', 'warning');
                         return;
@@ -640,6 +746,11 @@
             function getAvailableVariationTypeIds(rawMaterial) {
                 if (!rawMaterial) {
                     return [];
+                }
+
+                // If it's a semi-finished product (used as ingredient), allow all variation types
+                if (semiFinishedIngredientMap[rawMaterial.id]) {
+                    return variationValueTypes.map(type => parseInt(type.id, 10));
                 }
 
                 if (Array.isArray(rawMaterial.available_variation_type_ids) && rawMaterial.available_variation_type_ids.length) {
@@ -710,7 +821,34 @@
                 }
                 if (!$rawMaterialSelect.data('select2')) {
                     $rawMaterialSelect.select2({
-                        placeholder: '-- Select raw material --',
+                        placeholder: '-- Select ingredient --',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownParent: $ingredientModal
+                    });
+                }
+
+                // Filter options based on activeProductType
+                // If 'semi', hide Semi-Finished Products optgroup
+                // If 'selling', show everything
+                if (activeProductType === 'semi') {
+                    $rawMaterialSelect.find('optgroup[label="Semi-Finished Products"]').prop('disabled', true);
+                    $rawMaterialSelect.find('option[data-type="semi"]').prop('disabled', true);
+                } else {
+                    $rawMaterialSelect.find('optgroup[label="Semi-Finished Products"]').prop('disabled', false);
+                    $rawMaterialSelect.find('option[data-type="semi"]').prop('disabled', false);
+                }
+
+                // Re-initialize select2 to reflect disabled state if needed, or just trigger change
+                // Select2 should pick up disabled attributes automatically on init/open, but sometimes needs refresh
+                // Since we are inside 'shown.bs.modal', select2 might be already initialized.
+                // If we just initialized it above, it picked up the disabled state? No, we set disabled AFTER init.
+                // So we might need to destroy and re-init if we want to be 100% sure, or just rely on Select2 observing DOM.
+                // Better approach: Destroy and Re-init always to be safe with dynamic options.
+                if ($rawMaterialSelect.data('select2')) {
+                    $rawMaterialSelect.select2('destroy');
+                    $rawMaterialSelect.select2({
+                        placeholder: '-- Select ingredient --',
                         allowClear: true,
                         width: '100%',
                         dropdownParent: $ingredientModal
@@ -722,7 +860,7 @@
                 if ($rawMaterialSelect.length && $rawMaterialSelect.data('select2')) {
                     $rawMaterialSelect.select2('destroy');
                 }
-                $('#modalIngredientTableBody .variation-type-select').each(function() {
+                $('#modalIngredientTableBody .variation-type-select').each(function () {
                     const $select = $(this);
                     if ($select.data('select2')) {
                         $select.select2('destroy');
@@ -734,7 +872,7 @@
                 if (!$.fn.select2) {
                     return;
                 }
-                $('#modalIngredientTableBody .variation-type-select').each(function() {
+                $('#modalIngredientTableBody .variation-type-select').each(function () {
                     const $select = $(this);
                     if (forceRefresh && $select.data('select2')) {
                         $select.select2('destroy');
@@ -751,4 +889,3 @@
         })();
     </script>
 @endsection
-
