@@ -175,19 +175,19 @@
         <div class="col-md-4">
             <div class="card card-modern stat-card border-start border-4 border-success">
                 <span class="stat-label">Total Assets</span>
-                <h3 class="stat-value" id="totalAssetsDisplay">$ 0.00</h3>
+                <h3 class="stat-value" id="totalAssetsDisplay">RS. 0.00</h3>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card card-modern stat-card border-start border-4 border-danger">
                 <span class="stat-label">Total Liabilities</span>
-                <h3 class="stat-value" id="totalLiabilitiesDisplay">$ 0.00</h3>
+                <h3 class="stat-value" id="totalLiabilitiesDisplay">RS. 0.00</h3>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card card-modern stat-card border-start border-4 border-primary">
                 <span class="stat-label">Total Equity</span>
-                <h3 class="stat-value" id="totalEquityDisplay">$ 0.00</h3>
+                <h3 class="stat-value" id="totalEquityDisplay">RS. 0.00</h3>
             </div>
         </div>
     </div>
@@ -282,7 +282,7 @@
 
         // Helper to format currency
         const formatMoney = (amount) => {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+            return 'RS. ' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
         };
 
         // ASSETS
@@ -361,7 +361,7 @@
     }
 
     function updateSummary(data) {
-        const formatMoney = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        const formatMoney = (amount) => 'RS. ' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
         document.getElementById('totalAssetsDisplay').innerText = formatMoney(data.assets.total);
         document.getElementById('totalLiabilitiesDisplay').innerText = formatMoney(data.liabilities.total);
         document.getElementById('totalEquityDisplay').innerText = formatMoney(data.equity.total);
@@ -372,7 +372,7 @@
         
         // Simulate fetching ledger details
         let html = '';
-        const formatMoney = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        const formatMoney = (amount) => 'RS. ' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
         
         // Generate random transactions
         for(let i=0; i<5; i++) {
