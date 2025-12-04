@@ -318,7 +318,7 @@
                 </div>
                 <div>
                     <div class="stat-label">Total Revenue</div>
-                    <div class="stat-value">${{ number_format($revenue, 2) }}</div>
+                    <div class="stat-value">RS. {{ number_format($revenue, 2) }}</div>
                     <div class="stat-trend text-success"><i class="fa fa-arrow-up"></i> 12% vs last month</div>
                 </div>
             </div>
@@ -331,7 +331,7 @@
                 </div>
                 <div>
                     <div class="stat-label">Cost of Goods</div>
-                    <div class="stat-value">${{ number_format($cogs, 2) }}</div>
+                    <div class="stat-value">RS. {{ number_format($cogs, 2) }}</div>
                     <div class="stat-trend text-muted">30% of Revenue</div>
                 </div>
             </div>
@@ -344,7 +344,7 @@
                 </div>
                 <div>
                     <div class="stat-label">Expenses</div>
-                    <div class="stat-value">${{ number_format($expenses, 2) }}</div>
+                    <div class="stat-value">RS. {{ number_format($expenses, 2) }}</div>
                     <div class="stat-trend text-danger"><i class="fa fa-arrow-down"></i> 2% vs last month</div>
                 </div>
             </div>
@@ -357,7 +357,7 @@
                 </div>
                 <div>
                     <div class="stat-label">Net Profit</div>
-                    <div class="stat-value text-success">${{ number_format($netProfit, 2) }}</div>
+                    <div class="stat-value text-success">RS. {{ number_format($netProfit, 2) }}</div>
                     <div class="stat-trend text-success fw-bold">Healthy Margin</div>
                 </div>
             </div>
@@ -388,17 +388,17 @@
                                 </tr>
                                 <tr class="pl-sub-row">
                                     <td>Product Sales</td>
-                                    <td class="text-end fw-bold">$120,000.00</td>
+                                    <td class="text-end fw-bold">RS. 16,476.00</td>
                                     <td class="text-center"><button class="btn-icon-modern" onclick="openDetails('Product Sales')"><i class="fa fa-eye"></i></button></td>
                                 </tr>
                                 <tr class="pl-sub-row">
                                     <td>Service Income</td>
-                                    <td class="text-end fw-bold">$30,000.00</td>
+                                    <td class="text-end fw-bold">RS. 30,000.00</td>
                                     <td class="text-center"><button class="btn-icon-modern" onclick="openDetails('Service Income')"><i class="fa fa-eye"></i></button></td>
                                 </tr>
                                 <tr class="pl-total-row" style="color: var(--primary-color);">
                                     <td>Total Revenue</td>
-                                    <td class="text-end">${{ number_format($revenue, 2) }}</td>
+                                    <td class="text-end">RS. {{ number_format($revenue, 2) }}</td>
                                     <td></td>
                                 </tr>
 
@@ -408,17 +408,17 @@
                                 </tr>
                                 <tr class="pl-sub-row">
                                     <td>Raw Materials</td>
-                                    <td class="text-end text-danger">($25,000.00)</td>
+                                    <td class="text-end text-danger">(RS. 25,000.00)</td>
                                     <td class="text-center"><button class="btn-icon-modern" onclick="openDetails('Raw Materials')"><i class="fa fa-eye"></i></button></td>
                                 </tr>
                                 <tr class="pl-sub-row">
                                     <td>Direct Labor</td>
-                                    <td class="text-end text-danger">($20,000.00)</td>
+                                    <td class="text-end text-danger">(RS. 20,000.00)</td>
                                     <td class="text-center"><button class="btn-icon-modern" onclick="openDetails('Direct Labor')"><i class="fa fa-eye"></i></button></td>
                                 </tr>
                                 <tr class="pl-total-row">
                                     <td>Gross Profit</td>
-                                    <td class="text-end">${{ number_format($grossProfit, 2) }}</td>
+                                    <td class="text-end">RS. {{ number_format($grossProfit, 2) }}</td>
                                     <td></td>
                                 </tr>
 
@@ -428,24 +428,24 @@
                                 </tr>
                                 <tr class="pl-sub-row">
                                     <td>Rent & Utilities</td>
-                                    <td class="text-end text-danger">($10,000.00)</td>
+                                    <td class="text-end text-danger">(RS. 10,000.00)</td>
                                     <td class="text-center"><button class="btn-icon-modern" onclick="openDetails('Rent & Utilities')"><i class="fa fa-eye"></i></button></td>
                                 </tr>
                                 <tr class="pl-sub-row">
                                     <td>Salaries & Wages</td>
-                                    <td class="text-end text-danger">($15,000.00)</td>
+                                    <td class="text-end text-danger">(RS. 15,000.00)</td>
                                     <td class="text-center"><button class="btn-icon-modern" onclick="openDetails('Salaries & Wages')"><i class="fa fa-eye"></i></button></td>
                                 </tr>
                                 <tr class="pl-sub-row">
                                     <td>Marketing</td>
-                                    <td class="text-end text-danger">($10,000.00)</td>
+                                    <td class="text-end text-danger">(RS. 10,000.00)</td>
                                     <td class="text-center"><button class="btn-icon-modern" onclick="openDetails('Marketing')"><i class="fa fa-eye"></i></button></td>
                                 </tr>
 
                                 <!-- Net Profit -->
                                 <tr class="pl-total-row" style="background-color: #f0fdf4; color: var(--success-color); font-size: 1.2rem;">
                                     <td>Net Profit / (Loss)</td>
-                                    <td class="text-end">${{ number_format($netProfit, 2) }}</td>
+                                    <td class="text-end">RS. {{ number_format($netProfit, 2) }}</td>
                                     <td></td>
                                 </tr>
                             </tbody>
@@ -587,7 +587,7 @@
                     <td>2023-10-0${i}</td>
                     <td>Transaction REF-${1000+i}</td>
                     <td>Vendor Name ${i}</td>
-                    <td class="text-end fw-bold">$${amount}</td>
+                    <td class="text-end fw-bold">RS. ${amount}</td>
                 </tr>
             `;
         }

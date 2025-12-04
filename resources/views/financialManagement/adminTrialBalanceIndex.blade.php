@@ -276,7 +276,7 @@
         <div class="col-md-3">
             <div class="card card-modern stat-card">
                 <span class="stat-label">Total Debits</span>
-                <h3 class="stat-value">$ 850,250.00</h3>
+                <h3 class="stat-value">RS. 850,250.00</h3>
             </div>
         </div>
 
@@ -284,7 +284,7 @@
         <div class="col-md-3">
             <div class="card card-modern stat-card">
                 <span class="stat-label">Total Credits</span>
-                <h3 class="stat-value">$ 850,250.00</h3>
+                <h3 class="stat-value">RS. 850,250.00</h3>
             </div>
         </div>
 
@@ -292,7 +292,7 @@
         <div class="col-md-3">
             <div class="card card-modern stat-card" style="border-left: 4px solid var(--success-color);">
                 <span class="stat-label">Variance</span>
-                <h3 class="stat-value text-success">$ 0.00</h3>
+                <h3 class="stat-value text-success">RS. 0.00</h3>
                 <small class="text-muted fw-bold">Difference</small>
             </div>
         </div>
@@ -421,8 +421,8 @@
                         <tfoot>
                             <tr class="total-row">
                                 <td colspan="2" class="text-end">TOTAL BALANCE</td>
-                                <td class="text-end text-success">$ 850,250.00</td>
-                                <td class="text-end text-success">$ 850,250.00</td>
+                                <td class="text-end text-success">RS. 850,250.00</td>
+                                <td class="text-end text-success">RS. 850,250.00</td>
                                 <td></td>
                             </tr>
                         </tfoot>
