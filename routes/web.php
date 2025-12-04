@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\FinancialManagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SalarySlipController;
 /*
@@ -353,6 +354,13 @@ Route::get('/pos-view', 'PosManagementController@posView')->name('posView');
 //Report
 Route::get('/adminsalesreport', 'ReportController@adminSalesReportIndex')->name('adminSalesReportIndex')->middleware('userAuth:adminSalesReport');
 Route::get('/adminstockreport', 'ReportController@adminStockReportIndex')->name('adminStockReportIndex')->middleware('userAuth:adminStockReport');
+
+//Financial Management
+Route::get('/adminChartOfAccount',[FinancialManagementController::class, 'adminChartOfAccountIndex'] )->name('adminChartOfAccountIndex')->middleware('userAuth:adminChartOfAccount');
+Route::get('/adminTrialBalance',[FinancialManagementController::class, 'adminTrialBalanceIndex'] )->name('adminTrialBalanceIndex')->middleware('userAuth:adminTrialBalance');
+Route::get('/adminBalanceSheet',[FinancialManagementController::class, 'adminBalanceSheetIndex'] )->name('adminBalanceSheetIndex')->middleware('userAuth:adminBalanceSheet');
+Route::get('/adminProfitAndLostStatement',[FinancialManagementController::class, 'adminProfitAndLostStatementIndex'] )->name('adminProfitAndLostStatementIndex')->middleware('userAuth:adminProfitAndLostStatement');
+Route::get('/adminBalanceSheetData', [FinancialManagementController::class, 'getBalanceSheetData'])->name('financial.balance-sheet-data')->middleware('userAuth:adminBalanceSheet');
 
 // Vendor Management
 Route::get('/vendorManagement', 'VendorController@index');
