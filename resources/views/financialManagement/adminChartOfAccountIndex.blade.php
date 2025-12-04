@@ -588,7 +588,7 @@
                     <i class="fa fa-briefcase"></i>
                 </div>
                 <div class="stat-label">Total Assets</div>
-                <div class="stat-value">$124,500.00</div>
+                <div class="stat-value">RS. 124,500.00</div>
                 <div class="stat-change positive">
                     <i class="fa fa-arrow-up"></i> 12.5% from last month
                 </div>
@@ -600,7 +600,7 @@
                     <i class="fa fa-credit-card"></i>
                 </div>
                 <div class="stat-label">Total Liabilities</div>
-                <div class="stat-value">$45,200.00</div>
+                <div class="stat-value">RS. 45,200.00</div>
                 <div class="stat-change negative">
                     <i class="fa fa-arrow-down"></i> 3.2% from last month
                 </div>
@@ -612,7 +612,7 @@
                     <i class="fa fa-money"></i>
                 </div>
                 <div class="stat-label">Net Income</div>
-                <div class="stat-value">$89,300.00</div>
+                <div class="stat-value">RS. 89,300.00</div>
                 <div class="stat-change positive">
                     <i class="fa fa-arrow-up"></i> 18.7% from last month
                 </div>
@@ -697,7 +697,7 @@
                         </td>
                         <td><span class="badge badge-modern badge-asset"><i class="fa fa-briefcase"></i> Asset</span></td>
                         <td>Heading</td>
-                        <td class="text-end"><strong>$124,500.00</strong></td>
+                        <td class="text-end"><strong>RS. 124,500.00</strong></td>
                         <td class="text-center">
                             <div class="action-group">
                                 <button class="action-btn btn-add" onclick="openAddModal('1000')" title="Add Sub-Account">
@@ -716,7 +716,7 @@
                         </td>
                         <td><span class="badge badge-modern badge-asset"><i class="fa fa-briefcase"></i> Asset</span></td>
                         <td>Sub-Heading</td>
-                        <td class="text-end">$45,000.00</td>
+                        <td class="text-end">RS. 45,000.00</td>
                         <td class="text-center">
                             <div class="action-group">
                                 <button class="action-btn btn-edit" onclick="openEditModal('1100')" title="Edit">
@@ -738,7 +738,7 @@
                         <td>Cash in Hand</td>
                         <td><span class="badge badge-modern badge-asset"><i class="fa fa-briefcase"></i> Asset</span></td>
                         <td>Cash</td>
-                        <td class="text-end">$5,000.00</td>
+                        <td class="text-end">RS. 5,000.00</td>
                         <td class="text-center">
                             <div class="action-group">
                                 <button class="action-btn btn-edit" onclick="openEditModal('1101')" title="Edit">
@@ -760,7 +760,7 @@
                         <td>Petty Cash</td>
                         <td><span class="badge badge-modern badge-asset"><i class="fa fa-briefcase"></i> Asset</span></td>
                         <td>Cash</td>
-                        <td class="text-end">$500.00</td>
+                        <td class="text-end">RS. 500.00</td>
                         <td class="text-center">
                             <div class="action-group">
                                 <button class="action-btn btn-edit" onclick="openEditModal('1102')" title="Edit">
@@ -785,7 +785,7 @@
                         </td>
                         <td><span class="badge badge-modern badge-liability"><i class="fa fa-credit-card"></i> Liability</span></td>
                         <td>Heading</td>
-                        <td class="text-end"><strong>$45,200.00</strong></td>
+                        <td class="text-end"><strong>RS. 45,200.00</strong></td>
                         <td class="text-center">
                             <div class="action-group">
                                 <button class="action-btn btn-add" onclick="openAddModal('2000')" title="Add Sub-Account">
@@ -801,7 +801,7 @@
                         <td>Accounts Payable</td>
                         <td><span class="badge badge-modern badge-liability"><i class="fa fa-credit-card"></i> Liability</span></td>
                         <td>Creditors</td>
-                        <td class="text-end">$12,000.00</td>
+                        <td class="text-end">RS. 12,000.00</td>
                         <td class="text-center">
                             <div class="action-group">
                                 <button class="action-btn btn-edit" onclick="openEditModal('2100')" title="Edit">
@@ -884,7 +884,7 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Opening Balance</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">RS.</span>
                                 <input type="number" class="form-control" id="openingBalance" placeholder="0.00" step="0.01">
                             </div>
                         </div>
@@ -971,7 +971,7 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Current Balance</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">RS.</span>
                                 <input type="text" class="form-control" id="editCurrentBalance" readonly>
                             </div>
                         </div>
@@ -1033,7 +1033,7 @@
                     </div>
                     <div class="detail-row">
                         <span class="detail-label"><i class="fa fa-dollar-sign me-2"></i>Current Balance</span>
-                        <span class="detail-value" id="viewBalance" style="color: var(--success); font-size: 1.1rem;">$5,000.00</span>
+                        <span class="detail-value" id="viewBalance" style="color: var(--success); font-size: 1.1rem;">RS. 5,000.00</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label"><i class="fa fa-info-circle me-2"></i>Status</span>
@@ -1065,16 +1065,16 @@
                                 <tr>
                                     <td>2024-01-20</td>
                                     <td>Cash Sale</td>
-                                    <td>$500.00</td>
+                                    <td>RS. 500.00</td>
                                     <td>-</td>
-                                    <td>$5,000.00</td>
+                                    <td>RS. 5,000.00</td>
                                 </tr>
                                 <tr>
                                     <td>2024-01-18</td>
                                     <td>Cash Withdrawal</td>
                                     <td>-</td>
-                                    <td>$200.00</td>
-                                    <td>$4,500.00</td>
+                                    <td>RS. 200.00</td>
+                                    <td>RS. 4,500.00</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1250,7 +1250,7 @@
         document.getElementById('editAccountName').value = 'Cash in Hand';
         document.getElementById('editAccountType').value = 'Asset';
         document.getElementById('editDetailType').value = 'Cash';
-        document.getElementById('editCurrentBalance').value = '$5,000.00';
+        document.getElementById('editCurrentBalance').value = 'RS. 5,000.00';
         document.getElementById('editAccountStatus').value = 'active';
         document.getElementById('editAccountDescription').value = 'Main cash account for daily operations';
         $('#editAccountModal').modal('show');
@@ -1263,7 +1263,7 @@
         document.getElementById('viewParent').textContent = '1100 - Current Assets';
         document.getElementById('viewType').innerHTML = '<span class="badge badge-modern badge-asset"><i class="fa fa-briefcase"></i> Asset</span>';
         document.getElementById('viewDetailType').textContent = 'Cash';
-        document.getElementById('viewBalance').textContent = '$5,000.00';
+        document.getElementById('viewBalance').textContent = 'RS. 5,000.00';
         document.getElementById('viewStatus').innerHTML = '<span class="badge badge-modern" style="background: var(--success-light); color: var(--success);">Active</span>';
         document.getElementById('viewCreated').textContent = 'January 15, 2024';
         document.getElementById('viewDescription').textContent = 'Main cash account for daily operations';
