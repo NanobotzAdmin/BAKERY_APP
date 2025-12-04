@@ -1,130 +1,71 @@
 @extends('layout', ['pageId' => 'recipeManagement', 'grupId' => 'products'])
 
 @section('content')
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+
     <style>
-        /* Custom Styles for Recipe Management */
-        .recipe-container {
-            padding: 20px;
+        /* Custom Overrides */
+        :root {
+            --primary-orange: #f59e0b;
+            --dark-orange: #d97706;
+            --text-dark: #1f2937;
+        }
+
+        body {
             background-color: #f3f4f6;
-            /* Light gray background */
             font-family: 'Inter', sans-serif;
-            /* Use a modern font if available, fallback to sans-serif */
         }
 
-        /* Header Section */
-        .recipe-header {
-            background-color: #fff;
-            padding: 20px 30px;
-            border-radius: 8px;
+        /* --- Bootstrap 4 Gap Polyfill (Since BS4 lacks flex-gap) --- */
+        .gap-1 {
+            gap: 0.25rem;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        .gap-3 {
+            gap: 1rem;
+        }
+
+        .d-flex {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
+        }
+
+        /* Ensure flex is explicit for gap to work in some polyfills, though raw CSS supports it in modern browsers */
+
+        /* Soften Cards */
+        .card {
+            border: none;
+            border-radius: 12px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        .header-icon {
-            background-color: #f59e0b;
-            /* Orange/Gold color */
-            color: white;
+        /* Header Icon */
+        .header-icon-box {
             width: 48px;
             height: 48px;
+            background-color: var(--primary-orange);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
             font-size: 24px;
         }
 
-        .header-text h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        .header-text p {
-            margin: 0;
-            color: #6b7280;
-            font-size: 14px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .badge-coming-soon {
-            background-color: #d946ef;
-            /* Purple/Pink */
-            color: white;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .btn-create-recipe {
-            background-color: #d97706;
-            /* Darker Orange */
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.2s;
-        }
-
-        .btn-create-recipe:hover {
-            background-color: #b45309;
-            color: white;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .stat-info h3 {
-            margin: 0;
-            font-size: 32px;
-            font-weight: 700;
-            color: #111827;
-            margin-top: 5px;
-        }
-
-        .stat-info span {
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
+        /* Stats Icons */
         .stat-icon {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -132,105 +73,29 @@
             font-size: 20px;
         }
 
-        .icon-blue {
+        /* Custom Colors */
+        .bg-light-blue {
             background-color: #e0f2fe;
             color: #0284c7;
         }
 
-        .icon-green {
+        .bg-light-green {
             background-color: #dcfce7;
             color: #16a34a;
         }
 
-        .icon-orange {
+        .bg-light-orange {
             background-color: #ffedd5;
             color: #ea580c;
         }
 
-        .icon-purple {
+        .bg-light-purple {
             background-color: #f3e8ff;
             color: #9333ea;
         }
 
-        /* Main Content Grid */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 25px;
-        }
-
-        /* Search & Filter */
-        .filter-section {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .search-bar {
-            position: relative;
-            width: 100%;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 10px 15px 10px 40px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background-color: #f9fafb;
-            font-size: 14px;
-        }
-
-        .search-bar i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
-
-        .filters-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background: white;
-            color: #374151;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Recipe Cards Grid */
-        .recipes-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .recipe-card {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            border: 1px solid #e5e7eb;
-            transition: transform 0.2s;
-        }
-
-        .recipe-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .recipe-image-placeholder {
+        /* Recipe Card Placeholder */
+        .img-placeholder {
             background-color: #f3f4f6;
             height: 140px;
             border-radius: 8px;
@@ -239,264 +104,17 @@
             justify-content: center;
             color: #9ca3af;
             font-size: 40px;
-            margin-bottom: 15px;
         }
 
-        .recipe-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .recipe-tag {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: 500;
-        }
-
-        .tag-pastry {
+        /* Tags */
+        .badge-soft-pink {
             background-color: #fce7f3;
             color: #db2777;
         }
 
-        .tag-bread {
+        .badge-soft-orange {
             background-color: #ffedd5;
             color: #ea580c;
-        }
-
-        .recipe-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #f3f4f6;
-            font-size: 12px;
-            color: #6b7280;
-        }
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .stat-item i {
-            margin-right: 4px;
-        }
-
-        .recipe-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            font-size: 13px;
-            color: #6b7280;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #22c55e;
-            display: inline-block;
-            margin-right: 5px;
-        }
-
-        .action-icons i {
-            margin-left: 10px;
-            cursor: pointer;
-            color: #4b5563;
-        }
-
-        /* Right Sidebar - Categories */
-        .categories-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            height: fit-content;
-        }
-
-        .categories-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 20px;
-        }
-
-        .donut-chart-placeholder {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: conic-gradient(#f59e0b 0% 35%,
-                    #ec4899 35% 60%,
-                    #8b5cf6 60% 90%,
-                    #6b7280 90% 100%);
-            margin: 0 auto 30px;
-            position: relative;
-        }
-
-        .donut-inner {
-            position: absolute;
-            width: 140px;
-            height: 140px;
-            background: white;
-            border-radius: 50%;
-            top: 30px;
-            left: 30px;
-        }
-
-        .legend-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 14px;
-            color: #374151;
-        }
-
-        .legend-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-
-        /* Modal Styles */
-        .modal-xl {
-            max-width: 1140px;
-        }
-
-        .modal-content {
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-header {
-            border-bottom: none;
-            padding: 25px 30px 10px;
-        }
-
-        .modal-title {
-            font-weight: 700;
-            font-size: 20px;
-            color: #111827;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .modal-subtitle {
-            color: #6b7280;
-            font-size: 14px;
-            margin-top: 5px;
-            margin-left: 38px;
-            /* Align with text start */
-        }
-
-        .modal-body {
-            padding: 20px 30px 30px;
-            background-color: #fff;
-        }
-
-        .modal-footer {
-            border-top: 1px solid #f3f4f6;
-            padding: 20px 30px;
-            background-color: #f9fafb;
-            border-bottom-left-radius: 16px;
-            border-bottom-right-radius: 16px;
-        }
-
-        /* Section Headers */
-        .section-header {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .section-header-blue {
-            background-color: #eff6ff;
-            border: 1px solid #dbeafe;
-        }
-
-        .section-header-blue .section-title {
-            color: #1d4ed8;
-        }
-
-        .section-header-blue .section-desc {
-            color: #3b82f6;
-        }
-
-        .section-header-yellow {
-            background-color: #fffbeb;
-            border: 1px solid #fef3c7;
-        }
-
-        .section-header-yellow .section-title {
-            color: #b45309;
-        }
-
-        .section-header-yellow .section-desc {
-            color: #d97706;
-        }
-
-        .section-header-purple {
-            background-color: #f3e8ff;
-            border: 1px solid #e9d5ff;
-        }
-
-        .section-header-purple .section-title {
-            color: #7e22ce;
-        }
-
-        .section-header-purple .section-desc {
-            color: #a855f7;
-        }
-
-        .section-title {
-            font-weight: 600;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-desc {
-            font-size: 12px;
-            margin-left: 26px;
-        }
-
-        /* Form Elements */
-        .form-group label {
-            font-weight: 600;
-            font-size: 13px;
-            color: #374151;
-            margin-bottom: 6px;
-        }
-
-        .form-control {
-            border-radius: 6px;
-            border: 1px solid #d1d5db;
-            padding: 10px 12px;
-            font-size: 14px;
-            height: auto;
-        }
-
-        .form-control:focus {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1);
         }
 
         /* Upload Area */
@@ -506,325 +124,280 @@
             padding: 30px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
             background-color: #f9fafb;
-            margin-bottom: 20px;
+            transition: all 0.2s;
         }
 
         .upload-area:hover {
-            border-color: #f59e0b;
+            border-color: var(--primary-orange);
             background-color: #fffbeb;
         }
 
-        .upload-icon {
-            font-size: 24px;
-            color: #9ca3af;
-            margin-bottom: 10px;
-        }
-
-        .upload-text {
-            font-size: 13px;
-            color: #4b5563;
-            font-weight: 500;
-        }
-
-        .upload-subtext {
-            font-size: 11px;
-            color: #9ca3af;
-        }
-
-        /* Ingredients Table */
-        .ingredients-table {
-            width: 100%;
-        }
-
-        .ingredients-table th {
-            font-size: 12px;
-            color: #6b7280;
-            font-weight: 500;
-            padding-bottom: 8px;
-        }
-
-        .ingredients-table td {
-            padding-bottom: 10px;
-            padding-right: 10px;
-        }
-
-        .btn-add-row {
-            width: 100%;
-            border: 1px dashed #d1d5db;
-            background: white;
-            color: #374151;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-add-row:hover {
-            border-color: #9ca3af;
-            background-color: #f9fafb;
-        }
-
-        /* Cost Breakdown */
-        .cost-breakdown {
-            background-color: #ecfdf5;
-            border: 1px solid #d1fae5;
-            border-radius: 8px;
+        /* Modal Sections */
+        .section-box {
             padding: 15px;
-            margin-top: 20px;
+            border-radius: 8px;
+            border: 1px solid transparent;
         }
 
-        .cost-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #065f46;
-            margin-bottom: 15px;
+        .section-blue {
+            background-color: #eff6ff;
+            border-color: #dbeafe;
         }
 
-        .cost-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 13px;
-            color: #064e3b;
+        .section-blue .title {
+            color: #1d4ed8;
         }
 
-        .cost-row.total {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #a7f3d0;
-            font-weight: 700;
-            font-size: 16px;
+        .section-yellow {
+            background-color: #fffbeb;
+            border-color: #fef3c7;
         }
 
-        .cost-input {
-            width: 80px;
-            text-align: right;
-            padding: 4px 8px;
-            border: 1px solid #a7f3d0;
-            border-radius: 4px;
-            background: white;
+        .section-yellow .title {
+            color: #b45309;
         }
 
-        /* Instructions */
+        .section-purple {
+            background-color: #f3e8ff;
+            border-color: #e9d5ff;
+        }
+
+        .section-purple .title {
+            color: #7e22ce;
+        }
+
+        /* Step Card */
         .step-card {
             background: #fff;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             padding: 15px;
-            margin-bottom: 15px;
         }
 
-        .step-header {
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
+        /* Select2 Fixes for BS4 */
+        .select2-container .select2-selection--single {
+            height: 38px !important;
+            border: 1px solid #ced4da;
+            /* BS4 default border color */
         }
 
-        .btn-cancel {
-            background: white;
-            border: 1px solid #d1d5db;
-            color: #374151;
-            padding: 8px 20px;
-            border-radius: 6px;
-            font-weight: 500;
-            margin-right: 10px;
+        .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+            line-height: 36px !important;
         }
 
-        .btn-save {
-            background-color: #d97706;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            font-weight: 500;
+        /* Font weight helpers missing in BS4 sometimes */
+        .fw-bold {
+            font-weight: 700 !important;
         }
 
-        .btn-save:hover {
-            background-color: #b45309;
-            color: white;
+        .fs-6 {
+            font-size: 1rem;
+        }
+
+        /* Custom Super Wide Modal */
+        @media (min-width: 992px) {
+            .modal-xxl {
+                max-width: 70% !important;
+                width: 70% !important;
+            }
+        }
+
+        /* Make the modal body scrollable so the footer stays fixed at bottom */
+        .modal-body-scrollable {
+            max-height: 75vh;
+            overflow-y: auto;
         }
     </style>
 
-    <div class="recipe-container">
-        <!-- Header -->
-        <div class="recipe-header">
-            <div class="header-left">
-                <div class="header-icon">
-                    <i class="fa fa-book"></i>
-                </div>
-                <div class="header-text">
-                    <h2>Recipe Management</h2>
-                    <p>Create and manage recipes with multi-level bill of materials</p>
-                </div>
-            </div>
-            <div class="header-right">
-                <span class="badge-coming-soon">Coming Soon</span>
-                <button class="btn-create-recipe" data-toggle="modal" data-target="#createRecipeModal">
-                    <i class="fa fa-plus"></i> Create Recipe
-                </button>
-            </div>
-        </div>
+    <div class="container-fluid py-4">
 
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-info">
-                    <span>Total Recipes</span>
-                    <h3>127</h3>
+        <div class="card mb-4">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="header-icon-box shadow-sm">
+                        <i class="fa fa-book"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="mb-0 fw-bold text-dark">Recipe Management</h4>
+                        <p class="mb-0 text-muted small">Create and manage recipes with multi-level bill of materials</p>
+                    </div>
                 </div>
-                <div class="stat-icon icon-blue">
-                    <i class="fa fa-book"></i>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <span>Active Recipes</span>
-                    <h3>98</h3>
-                </div>
-                <div class="stat-icon icon-green">
-                    <i class="fa fa-check-circle"></i>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <span>Draft Recipes</span>
-                    <h3>24</h3>
-                </div>
-                <div class="stat-icon icon-orange">
-                    <i class="fa fa-pencil-square-o"></i>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <span>Average Cost</span>
-                    <h3>Rs. 145</h3>
-                </div>
-                <div class="stat-icon icon-purple">
-                    <i class="fa fa-calculator"></i>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge badge-danger badge-pill px-3 py-2 mr-3">Coming Soon</span>
+                    <button class="btn btn-warning text-white fw-bold d-flex align-items-center" data-toggle="modal"
+                        data-target="#createRecipeModal">
+                        <i class="fa fa-plus mr-2"></i> Create Recipe
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="content-grid">
-            <!-- Left Column -->
-            <div class="left-column">
-                <!-- Search & Filter -->
-                <div class="filter-section">
-                    <div class="search-bar">
-                        <i class="fa fa-search"></i>
-                        <input type="text" placeholder="Search recipes...">
-                    </div>
-                    <div class="filters-row">
-                        <button class="filter-btn">All Categories <i class="fa fa-angle-down"></i></button>
-                        <button class="filter-btn">All Status <i class="fa fa-angle-down"></i></button>
-                        <button class="filter-btn">All Cost <i class="fa fa-angle-down"></i></button>
-                        <button class="filter-btn" style="margin-left: auto;">Sort by: <i
-                                class="fa fa-angle-down"></i></button>
-                    </div>
-                </div>
-
-                <!-- Recipe Grid -->
-                <div class="recipes-list">
-                    <!-- Card 1 -->
-                    <div class="recipe-card">
-                        <div class="recipe-image-placeholder">
-                            <i class="fa fa-picture-o"></i>
+        <div class="row mb-4">
+            <div class="col-12 col-md-6 col-xl-3 mb-3">
+                <div class="card h-100 p-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <span class="text-muted small fw-bold">Total Recipes</span>
+                            <h2 class="fw-bold text-dark mt-1 mb-0">127</h2>
                         </div>
-                        <div class="recipe-title">
-                            Classic Croissant
-                            <span class="recipe-tag tag-pastry">Pastry</span>
-                        </div>
-                        <div class="recipe-stats">
-                            <div class="stat-item">
-                                <span><i class="fa fa-cube"></i> 24</span>
-                                <span>pcs</span>
-                            </div>
-                            <div class="stat-item">
-                                <span><i class="fa fa-clock-o"></i> 3.5</span>
-                                <span>hrs</span>
-                            </div>
-                            <div class="stat-item">
-                                <span>Rs.</span>
-                                <span>12.50</span>
-                            </div>
-                        </div>
-                        <div class="recipe-footer">
-                            <div><span class="status-dot"></span> v2.3</div>
-                            <div class="action-icons">
-                                <i class="fa fa-eye"></i>
-                                <i class="fa fa-clone"></i>
-                                <i class="fa fa-ellipsis-v"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="recipe-card">
-                        <div class="recipe-image-placeholder">
-                            <i class="fa fa-picture-o"></i>
-                        </div>
-                        <div class="recipe-title">
-                            Sourdough Bread
-                            <span class="recipe-tag tag-bread">Bread</span>
-                        </div>
-                        <div class="recipe-stats">
-                            <div class="stat-item">
-                                <span><i class="fa fa-cube"></i> 2</span>
-                                <span>loaves</span>
-                            </div>
-                            <div class="stat-item">
-                                <span><i class="fa fa-clock-o"></i> 24</span>
-                                <span>hrs</span>
-                            </div>
-                            <div class="stat-item">
-                                <span>Rs.</span>
-                                <span>85.00</span>
-                            </div>
-                        </div>
-                        <div class="recipe-footer">
-                            <div><span class="status-dot"></span> v3.1</div>
-                            <div class="action-icons">
-                                <i class="fa fa-eye"></i>
-                                <i class="fa fa-clone"></i>
-                                <i class="fa fa-ellipsis-v"></i>
-                            </div>
+                        <div class="stat-icon bg-light-blue">
+                            <i class="fa fa-book"></i>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Right Column -->
-            <div class="right-column">
-                <div class="categories-card">
-                    <h3 class="categories-title">Recipe Categories</h3>
-                    <div class="donut-chart-placeholder">
-                        <div class="donut-inner"></div>
+            <div class="col-12 col-md-6 col-xl-3 mb-3">
+                <div class="card h-100 p-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <span class="text-muted small fw-bold">Active Recipes</span>
+                            <h2 class="fw-bold text-dark mt-1 mb-0">98</h2>
+                        </div>
+                        <div class="stat-icon bg-light-green">
+                            <i class="fa fa-check-circle"></i>
+                        </div>
                     </div>
-                    <div class="legend">
-                        <div class="legend-item">
-                            <span class="legend-label"><span class="legend-dot" style="background-color: #f59e0b;"></span>
-                                Bread</span>
-                            <span class="legend-value">35%</span>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3 mb-3">
+                <div class="card h-100 p-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <span class="text-muted small fw-bold">Draft Recipes</span>
+                            <h2 class="fw-bold text-dark mt-1 mb-0">24</h2>
                         </div>
-                        <div class="legend-item">
-                            <span class="legend-label"><span class="legend-dot" style="background-color: #ec4899;"></span>
-                                Pastry</span>
-                            <span class="legend-value">25%</span>
+                        <div class="stat-icon bg-light-orange">
+                            <i class="fa fa-pencil-alt"></i>
                         </div>
-                        <div class="legend-item">
-                            <span class="legend-label"><span class="legend-dot" style="background-color: #8b5cf6;"></span>
-                                Cakes</span>
-                            <span class="legend-value">30%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3 mb-3">
+                <div class="card h-100 p-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <span class="text-muted small fw-bold">Average Cost</span>
+                            <h2 class="fw-bold text-dark mt-1 mb-0">Rs. 145</h2>
                         </div>
-                        <div class="legend-item">
-                            <span class="legend-label"><span class="legend-dot" style="background-color: #6b7280;"></span>
-                                Others</span>
-                            <span class="legend-value">10%</span>
+                        <div class="stat-icon bg-light-purple">
+                            <i class="fa fa-calculator"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 col-xl-9">
+                <div class="card p-3 mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 mb-2 mb-md-0">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white border-right-0"><i
+                                            class="fa fa-search text-muted"></i></span>
+                                </div>
+                                <input type="text" class="form-control border-left-0" placeholder="Search recipes...">
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <select class="custom-select text-muted">
+                                <option>Categories</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <select class="custom-select text-muted">
+                                <option>Status</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 text-md-right">
+                            <select class="custom-select d-inline-block w-auto text-muted">
+                                <option>Sort by: Newest</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    @foreach($recipe as $item)
+                        <div class="col-md-6 col-xl-4 mb-3">
+                            <div class="card card-hover h-100 p-3">
+                                <div class="img-placeholder mb-3" style="height: 150px; overflow: hidden; border-radius: 8px;">
+                                    @if($item->image)
+                                        <img src="{{ asset($item->image) }}" alt="{{ $item->recipe_name }}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    @else
+                                        <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted">
+                                            <i class="fa fa-image fa-2x"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold text-dark mb-0">{{ $item->recipe_name }}</h6>
+                                    <span
+                                        class="badge badge-soft-pink badge-pill">{{ $item->productItem->mainCategory->product_main_category_name ?? 'N/A' }}</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between border-top border-bottom py-2 my-2 small text-muted">
+                                    <div class="d-flex flex-column text-center">
+                                        <i class="fa fa-cube mb-1"></i>
+                                        @php
+                                            $unit = collect($variationValueTypes)->firstWhere('id', $item->pm_variation_value_type_id);
+                                        @endphp
+                                        <span>{{ $item->yield }} {{ $unit['name'] ?? 'Units' }}</span>
+                                    </div>
+                                    <div class="d-flex flex-column text-center">
+                                        <i class="fa fa-clock mb-1"></i>
+                                        <span>{{ $item->steps->count() }} Steps</span>
+                                    </div>
+                                    <div class="d-flex flex-column text-center">
+                                        <i class="fa fa-tag mb-1"></i>
+                                        <span>Rs. {{ number_format($item->productItem->selling_price ?? 0, 2) }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-success fw-bold"><i class="fa fa-circle small mr-1"></i> Active</small>
+                                    <div class="text-muted">
+                                        <button class="btn btn-sm btn-link text-muted p-0 mr-2"
+                                            onclick='showRecipeDetails(@json($item))'><i class="fa fa-eye"></i></button>
+                                        <button class="btn btn-sm btn-link text-muted p-0 mr-2"><i
+                                                class="fa fa-copy"></i></button>
+                                        <button class="btn btn-sm btn-link text-muted p-0"><i
+                                                class="fa fa-ellipsis-v"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-xl-3">
+                <div class="card p-3">
+                    <h6 class="fw-bold mb-4">Recipe Categories</h6>
+
+                    <div style="position: relative; height: 250px; width: 100%;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span><i class="fa fa-circle mr-2" style="color: #f59e0b;"></i> Bread</span>
+                            <span class="fw-bold">35%</span>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span><i class="fa fa-circle mr-2" style="color: #ec4899;"></i> Pastry</span>
+                            <span class="fw-bold">25%</span>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span><i class="fa fa-circle mr-2" style="color: #8b5cf6;"></i> Cakes</span>
+                            <span class="fw-bold">30%</span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span><i class="fa fa-circle mr-2" style="color: #6b7280;"></i> Others</span>
+                            <span class="fw-bold">10%</span>
                         </div>
                     </div>
                 </div>
@@ -832,230 +405,477 @@
         </div>
     </div>
 
-    <!-- Create Recipe Modal -->
-    <div class="modal fade" id="createRecipeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="createRecipeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xxl" role="document">
+            <div class="modal-content border-0 rounded-lg">
+                <form id="createRecipeForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header border-0 pb-0">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="bg-warning text-white rounded p-2 d-flex align-items-center justify-content-center mr-3"
+                                style="width: 40px; height: 40px;">
+                                <i class="fa fa-book"></i>
+                            </div>
+                            <div>
+                                <h5 class="modal-title fw-bold">Create New Recipe</h5>
+                                <p class="text-muted small mb-0">Fill in the details below to create a new recipe.</p>
+                            </div>
+                        </div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body modal-body-scrollable p-4">
+                        <div class="row">
+                            <div class="col-lg-6 mb-3">
+                                <div class="section-box section-blue mb-3">
+                                    <div class="d-flex align-items-center gap-2 title fw-bold">
+                                        <i class="fa fa-cube mr-2"></i> Basic Information
+                                    </div>
+                                    <small class="text-muted pl-4">Enter the fundamental details</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="fw-bold small">Select Product *</label>
+                                    <select class="form-control select2" id="productSelect" name="pm_product_item_id"
+                                        style="width: 100%;" required>
+                                        <option value="">Select a product...</option>
+                                        @foreach($products as $product)
+                                            @if($product->pm_product_item_type_id == 1 || $product->pm_product_item_type_id == 3)
+                                                <option value="{{ $product->id }}">{{ $product->product_item_name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="fw-bold small">Recipe Image</label>
+                                    <div class="upload-area" onclick="document.getElementById('recipeImageInput').click()">
+                                        <div class="text-muted mb-2"><i class="fa fa-cloud-upload fa-2x"></i></div>
+                                        <div class="fw-bold text-dark small">Click to upload or drag and drop</div>
+                                        <div class="text-muted small">PNG, JPG up to 5MB</div>
+                                        <img id="imagePreview" src="#" class="mt-2 rounded"
+                                            style="display: none; max-width: 100%; max-height: 150px;">
+                                    </div>
+                                    <input type="file" id="recipeImageInput" name="image" hidden accept="image/*"
+                                        onchange="previewImage(this)">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="fw-bold small">Recipe Name *</label>
+                                    <input type="text" class="form-control" name="recipe_name"
+                                        placeholder="Enter recipe name" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="fw-bold small">Yield *</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="yield"
+                                            placeholder="Enter yield amount" required>
+                                        <div class="input-group-append">
+                                            <select class="custom-select" name="pm_variation_value_type_id" required>
+                                                @foreach($variationValueTypes as $type)
+                                                    <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="discription">Description</label>
+                                    <textarea name="description" id="discription" class="form-control"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 mb-3">
+                                <div class="section-box section-yellow mb-3">
+                                    <div class="d-flex align-items-center gap-2 title fw-bold">
+                                        <i class="fa fa-cubes mr-2"></i> Ingredients
+                                    </div>
+                                    <small class="text-muted pl-4">List raw materials</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="fw-bold small">Ingredients List</label>
+                                    <div class="table-responsive">
+                                        <table class="table table-borderless align-middle" id="ingredientsTable">
+                                            <thead class="text-muted small border-bottom">
+                                                <tr>
+                                                    <th style="width: 50%">Item</th>
+                                                    <th style="width: 25%">Qty</th>
+                                                    <th style="width: 20%">Unit</th>
+                                                    <th style="width: 5%"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary btn-block border-dashed"
+                                        onclick="addIngredientRow()">
+                                        <i class="fa fa-plus mr-1"></i> Add Another Ingredient
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="section-box section-purple mb-3">
+                                    <div class="d-flex align-items-center gap-2 title fw-bold">
+                                        <i class="fa fa-list-ol mr-2"></i> Preparation Instructions
+                                    </div>
+                                </div>
+
+                                <div id="stepsContainer"></div>
+
+                                <button type="button" class="btn btn-outline-secondary btn-block border-dashed mt-2"
+                                    onclick="addStep()">
+                                    <i class="fa fa-plus mr-1"></i> Add Another Step
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light border-0 rounded-bottom">
+                        <button type="button" class="btn btn-light border" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning text-white fw-bold">Create Recipe</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recipe Detail Modal -->
+    <div class="modal fade" id="recipeDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div>
-                        <h5 class="modal-title">
-                            <span
-                                style="background: #f59e0b; color: white; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;"><i
-                                    class="fa fa-book"></i></span>
-                            Create New Recipe
-                        </h5>
-                        <p class="modal-subtitle">Fill in the details below to create a new recipe with multi-level bill
-                            of materials</p>
+            <div class="modal-content border-0 rounded-lg">
+                <div class="modal-header border-0 pb-0">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="bg-info text-white rounded p-2 d-flex align-items-center justify-content-center mr-3"
+                            style="width: 40px; height: 40px;">
+                            <i class="fa fa-eye"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold" id="detailRecipeName">Recipe Details</h5>
+                            <p class="text-muted small mb-0" id="detailRecipeDesc">View recipe information</p>
+                        </div>
                     </div>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <div class="row">
-                        <!-- Left Column: Basic Info -->
-                        <div class="col-lg-6">
-                            <div class="section-header section-header-blue">
-                                <div class="section-title"><i class="fa fa-cube"></i> Basic Information</div>
-                                <div class="section-desc">Enter the fundamental details about your recipe</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Recipe Image</label>
-                                <p style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Upload a photo of the
-                                    finished product</p>
-                                <div class="upload-area">
-                                    <div class="upload-icon"><i class="fa fa-cloud-upload"></i></div>
-                                    <div class="upload-text">Click to upload or drag and drop</div>
-                                    <div class="upload-subtext">PNG, JPG up to 5MB</div>
+                        <div class="col-lg-4">
+                            <img id="detailRecipeImage" src="" class="img-fluid rounded mb-3"
+                                style="width: 100%; max-height: 250px; object-fit: cover;">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="fw-bold">Details</h6>
+                                    <p class="mb-1 small"><strong>Product:</strong> <span id="detailProductName"></span></p>
+                                    <p class="mb-1 small"><strong>Yield:</strong> <span id="detailYield"></span></p>
+                                    <p class="mb-1 small"><strong>Category:</strong> <span id="detailCategory"></span></p>
                                 </div>
                             </div>
-
-                            <div class="form-group">
-                                <label>Recipe Name *</label>
-                                <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">What is this recipe
-                                    called? (e.g., "Classic Chocolate Chip Cookies")</p>
-                                <input type="text" class="form-control" placeholder="Enter recipe name">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Category *</label>
-                                <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Select the type of
-                                    baked good</p>
-                                <select class="form-control">
-                                    <option>Bread</option>
-                                    <option>Pastry</option>
-                                    <option>Cake</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Product Type *</label>
-                                <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Is this a finished
-                                    product or used in other recipes?</p>
-                                <select class="form-control">
-                                    <option>Finished Product - Ready for sale to customers</option>
-                                    <option>Semi-Finished Product - Used in other recipes</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Recipe Status</label>
-                                <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Active recipes can be
-                                    used in production, drafts are for testing</p>
-                                <select class="form-control">
-                                    <option>Draft - Still in development</option>
-                                    <option>Active - Ready for production</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Description (Optional)</label>
-                                <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Add any notes or
-                                    special instructions about this recipe</p>
-                                <textarea class="form-control" rows="3"
-                                    placeholder="E.g., This recipe produces soft, chewy cookies perfect for retail..."></textarea>
-                            </div>
                         </div>
-
-                        <!-- Right Column: Ingredients & Costing -->
-                        <div class="col-lg-6">
-                            <div class="section-header section-header-yellow">
-                                <div class="section-title"><i class="fa fa-cubes"></i> Ingredients & Costing</div>
-                                <div class="section-desc">List all ingredients and calculate production costs</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Ingredients *</label>
-                                <p style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Add all raw materials
-                                    needed for this recipe</p>
-
-                                <table class="ingredients-table" id="ingredientsTable">
-                                    <thead>
+                        <div class="col-lg-8">
+                            <h6 class="fw-bold text-warning"><i class="fa fa-cubes mr-1"></i> Ingredients</h6>
+                            <div class="table-responsive mb-4">
+                                <table class="table table-sm table-borderless table-striped" id="detailIngredientsTable">
+                                    <thead class="text-muted small">
                                         <tr>
-                                            <th style="width: 60%">Ingredient Name</th>
-                                            <th style="width: 20%">Quantity</th>
-                                            <th style="width: 20%">Unit</th>
+                                            <th>Ingredient</th>
+                                            <th>Quantity</th>
+                                            <th>Unit</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <select class="form-control select2">
-                                                    <option>Select ingredient...</option>
-                                                    <option>Flour</option>
-                                                    <option>Sugar</option>
-                                                    <option>Butter</option>
-                                                </select>
-                                            </td>
-                                            <td><input type="number" class="form-control" value="500"></td>
-                                            <td>
-                                                <select class="form-control">
-                                                    <option>g</option>
-                                                    <option>kg</option>
-                                                    <option>ml</option>
-                                                    <option>L</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    </tbody>
+                                    <tbody></tbody>
                                 </table>
-                                <button type="button" class="btn-add-row" onclick="addIngredientRow()">
-                                    <i class="fa fa-plus"></i> Add Another Ingredient
-                                </button>
                             </div>
 
-                            <div class="cost-breakdown">
-                                <div class="cost-title">Cost Breakdown (LKR)</div>
-                                <p style="font-size: 11px; color: #064e3b; margin-bottom: 15px;">Enter costs in Sri
-                                    Lankan Rupees to calculate total recipe cost</p>
-
-                                <div class="cost-row">
-                                    <span>Material Costs (Raw ingredients)</span>
-                                    <input type="text" class="cost-input" value="0.00" readonly>
-                                </div>
-                                <div class="cost-row">
-                                    <span>Overhead Costs (Utilities, rent)</span>
-                                    <input type="text" class="cost-input" value="0.00">
-                                </div>
-                                <div class="cost-row">
-                                    <span>Labor Costs (Staff time)</span>
-                                    <input type="text" class="cost-input" value="0.00">
-                                </div>
-                                <div class="cost-row total">
-                                    <span>Total Cost Per Batch</span>
-                                    <span style="font-size: 18px; color: #059669;">Rs. 0.00</span>
-                                </div>
-                            </div>
+                            <h6 class="fw-bold text-purple"><i class="fa fa-list-ol mr-1"></i> Preparation Steps</h6>
+                            <div id="detailStepsList"></div>
                         </div>
                     </div>
-
-                    <!-- Bottom Section: Instructions -->
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="section-header section-header-purple">
-                                <div class="section-title"><i class="fa fa-list-ol"></i> Preparation Instructions</div>
-                                <div class="section-desc">Step-by-step instructions for making this recipe</div>
-                            </div>
-
-                            <div id="stepsContainer">
-                                <div class="step-card">
-                                    <div class="step-header">Step 1</div>
-                                    <textarea class="form-control" rows="2"
-                                        placeholder="E.g., Preheat oven to 180°C and prepare baking trays with parchment paper..."></textarea>
-                                </div>
-                            </div>
-
-                            <button type="button" class="btn-add-row" onclick="addStep()">
-                                <i class="fa fa-plus"></i> Add Another Step
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancel" data-dismiss="modal"><i class="fa fa-times"></i>
-                        Cancel</button>
-                    <button type="button" class="btn-save"><i class="fa fa-plus"></i> Create Recipe</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
+        $(document).ready(function () {
+            // 1. Initialize Select2 with Bootstrap 4 Theme
+            $('.select2').select2({
+                theme: 'bootstrap4', // Changed from bootstrap-5
+                dropdownParent: $('#createRecipeModal')
+            });
+
+            // 2. Initialize Chart.js
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Bread', 'Pastry', 'Cakes', 'Others'],
+                    datasets: [{
+                        data: [35, 25, 30, 10],
+                        backgroundColor: ['#f59e0b', '#ec4899', '#8b5cf6', '#6b7280'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    cutout: '75%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Handle Form Submission
+            $('#createRecipeForm').on('submit', function (e) {
+                e.preventDefault();
+                
+                var formData = new FormData(this);
+                var submitBtn = $(this).find('button[type="submit"]');
+                var originalBtnText = submitBtn.html();
+
+                // Show loading state
+                submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Creating...');
+
+                $.ajax({
+                    url: "{{ route('saveRecipe') }}",
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'Accept': 'application/json'
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#createRecipeModal').modal('hide');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message,
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        var errorMessage = 'Something went wrong!';
+                        if (xhr.responseJSON) {
+                            if (xhr.responseJSON.errors) {
+                                // Handle validation errors
+                                errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                            } else if (xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage,
+                        });
+                    },
+                    complete: function() {
+                        // Reset button state
+                        submitBtn.prop('disabled', false).html(originalBtnText);
+                    }
+                });
+            });
+        });
+
+        // 3. Dynamic Ingredients Logic
+        const variationTypes = @json($variationValueTypes);
+
         function addIngredientRow() {
+            const rowId = Date.now();
+
+            let unitOptions = '';
+            variationTypes.forEach(type => {
+                unitOptions += `<option value="${type.id}">${type.name}</option>`;
+            });
+
             const row = `
-                <tr>
-                    <td>
-                        <select class="form-control select2">
-                            <option>Select ingredient...</option>
-                            <option>Flour</option>
-                            <option>Sugar</option>
-                            <option>Butter</option>
-                        </select>
-                    </td>
-                    <td><input type="number" class="form-control" placeholder="0"></td>
-                    <td>
-                        <select class="form-control">
-                            <option>g</option>
-                            <option>kg</option>
-                            <option>ml</option>
-                            <option>L</option>
-                        </select>
-                    </td>
-                </tr>
-            `;
+                        <tr id="ing-row-${rowId}">
+                            <td>
+                                <select class="form-control select2-dynamic" name="ingredients[]" style="width: 100%;" required>
+                                    <option value="">Select ingredient...</option>
+                                    @foreach($products as $product)
+                                        @if($product->pm_product_item_type_id == 2 || $product->pm_product_item_type_id == 3)
+                                            <option value="{{ $product->id }}">{{ $product->product_item_name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control form-control-sm" name="quantities[]" placeholder="0" required></td>
+                            <td>
+                                <select class="form-control form-control-sm" name="units[]">
+                                    ${unitOptions}
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm text-danger" onclick="removeIngredientRow('${rowId}')">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        `;
             $('#ingredientsTable tbody').append(row);
+
+            // Re-init Select2 for the new row (Bootstrap 4 theme)
+            $(`#ing-row-${rowId} .select2-dynamic`).select2({
+                theme: 'bootstrap4',
+                dropdownParent: $('#createRecipeModal')
+            });
         }
 
+        function removeIngredientRow(rowId) {
+            $(`#ing-row-${rowId}`).remove();
+        }
+
+        // 4. Dynamic Steps Logic
         function addStep() {
+            const stepId = Date.now();
             const stepCount = $('#stepsContainer .step-card').length + 1;
             const step = `
-                <div class="step-card">
-                    <div class="step-header">Step ${stepCount}</div>
-                    <textarea class="form-control" rows="2" placeholder="Describe this step..."></textarea>
-                </div>
-            `;
+                                <div class="step-card mb-2" id="step-${stepId}">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold small text-muted">Step <span class="step-number">${stepCount}</span></span>
+                                        <div>
+                                            <button type="button" class="btn btn-sm text-secondary" onclick="moveStepUp('${stepId}')"><i class="fa fa-arrow-up"></i></button>
+                                            <button type="button" class="btn btn-sm text-secondary" onclick="moveStepDown('${stepId}')"><i class="fa fa-arrow-down"></i></button>
+                                            <button type="button" class="btn btn-sm text-danger" onclick="removeStep('${stepId}')"><i class="fa fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <textarea class="form-control" name="steps[]" rows="2" placeholder="Describe this step..." required></textarea>
+                                </div>
+                                `;
             $('#stepsContainer').append(step);
+        }
+
+        function removeStep(stepId) {
+            $(`#step-${stepId}`).remove();
+            updateStepNumbers();
+        }
+
+        function moveStepUp(stepId) {
+            const current = $(`#step-${stepId}`);
+            const prev = current.prev('.step-card');
+            if (prev.length) {
+                current.insertBefore(prev);
+                updateStepNumbers();
+            }
+        }
+
+        function moveStepDown(stepId) {
+            const current = $(`#step-${stepId}`);
+            const next = current.next('.step-card');
+            if (next.length) {
+                current.insertAfter(next);
+                updateStepNumbers();
+            }
+        }
+
+        function updateStepNumbers() {
+            $('#stepsContainer .step-card').each(function (index) {
+                $(this).find('.step-number').text(index + 1);
+            });
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#imagePreview').attr('src', e.target.result).show();
+                    $('.upload-area .text-muted').hide();
+                    $('.upload-area .fw-bold').text('Change Image');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function showRecipeDetails(recipe) {
+            $('#detailRecipeName').text(recipe.recipe_name);
+            $('#detailRecipeDesc').text(recipe.description || 'No description available');
+            $('#detailProductName').text(recipe.product_item ? recipe.product_item.product_item_name : 'N/A');
+            $('#detailYield').text(recipe.yield); // Add unit if available
+            $('#detailCategory').text(recipe.product_item && recipe.product_item.main_category ? recipe.product_item.main_category.product_main_category_name : 'N/A');
+
+            if (recipe.image) {
+                $('#detailRecipeImage').attr('src', "{{ asset('') }}" + recipe.image).show();
+            } else {
+                $('#detailRecipeImage').hide();
+            }
+
+            // Populate Ingredients
+            let ingredientsHtml = '';
+            if (recipe.ingredients && recipe.ingredients.length > 0) {
+                recipe.ingredients.forEach(ing => {
+                    // Find unit name from variationTypes
+                    const unitType = variationTypes.find(t => t.id == ing.pm_variation_value_type_id);
+                    const unitName = unitType ? unitType.name : '';
+
+                    ingredientsHtml += `
+                                <tr>
+                                    <td>${ing.product_item ? ing.product_item.product_item_name : 'Unknown Item'}</td>
+                                    <td>${ing.quantity}</td>
+                                    <td>${unitName}</td>
+                                </tr>
+                            `;
+                });
+            } else {
+                ingredientsHtml = '<tr><td colspan="3" class="text-center text-muted">No ingredients found</td></tr>';
+            }
+            $('#detailIngredientsTable tbody').html(ingredientsHtml);
+
+            // Populate Steps
+            let stepsHtml = '';
+            if (recipe.steps && recipe.steps.length > 0) {
+                recipe.steps.forEach(step => {
+                    stepsHtml += `
+                                <div class="d-flex mb-3">
+                                    <div class="mr-3">
+                                        <span class="badge badge-purple rounded-circle" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">${step.step_number}</span>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 small text-dark">${step.instruction}</p>
+                                    </div>
+                                </div>
+                            `;
+                });
+            } else {
+                stepsHtml = '<p class="text-muted small">No steps found</p>';
+            }
+            $('#detailStepsList').html(stepsHtml);
+
+            $('#recipeDetailModal').modal('show');
         }
     </script>
 @endsection

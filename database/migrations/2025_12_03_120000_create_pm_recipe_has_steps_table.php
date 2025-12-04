@@ -14,10 +14,12 @@ return new class extends Migration {
     {
         Schema::create('pm_recipe_has_steps', function (Blueprint $table) {
             $table->id();
-            $table->integer('pm_product_recipe_id');
+            $table->unsignedBigInteger('pm_product_recipe_id');
             $table->integer('step_number');
             $table->text('instruction');
             $table->timestamps();
+
+            $table->foreign('pm_product_recipe_id')->references('id')->on('pm_product_recipe');
         });
     }
 
