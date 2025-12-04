@@ -362,3 +362,11 @@ Route::get('/adminBalanceSheet',[FinancialManagementController::class, 'adminBal
 Route::get('/adminProfitAndLostStatement',[FinancialManagementController::class, 'adminProfitAndLostStatementIndex'] )->name('adminProfitAndLostStatementIndex')->middleware('userAuth:adminProfitAndLostStatement');
 Route::get('/adminBalanceSheetData', [FinancialManagementController::class, 'getBalanceSheetData'])->name('financial.balance-sheet-data')->middleware('userAuth:adminBalanceSheet');
 
+// Vendor Management
+Route::get('/vendorManagement', 'VendorController@index');
+Route::post('/saveVendor', 'VendorController@store');
+
+// Recipe Management
+Route::get('/recipe-management', function () {
+    return view('Products.Recipe Management.recipe-management');
+});

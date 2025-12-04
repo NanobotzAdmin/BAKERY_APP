@@ -108,6 +108,10 @@ class STATIC_DATA_MODEL
         [
             'id' => 2,
             'name' => 'Row Material'
+        ],
+        [
+            'id' => 3,
+            'name' => 'Semi Finished Product'
         ]
     ];
 }
