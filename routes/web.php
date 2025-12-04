@@ -359,6 +359,5 @@ Route::get('/vendorManagement', 'VendorController@index');
 Route::post('/saveVendor', 'VendorController@store');
 
 // Recipe Management
-Route::get('/recipe-management', function () {
-    return view('Products.Recipe Management.recipe-management');
-});
+Route::get('/recipe-management', 'RecipeManagementController@index')->name('recipe-management');
+Route::post('/saveRecipe', 'RecipeManagementController@store')->name('saveRecipe');
