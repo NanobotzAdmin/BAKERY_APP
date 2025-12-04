@@ -353,3 +353,12 @@ Route::get('/pos-view', 'PosManagementController@posView')->name('posView');
 //Report
 Route::get('/adminsalesreport', 'ReportController@adminSalesReportIndex')->name('adminSalesReportIndex')->middleware('userAuth:adminSalesReport');
 Route::get('/adminstockreport', 'ReportController@adminStockReportIndex')->name('adminStockReportIndex')->middleware('userAuth:adminStockReport');
+
+// Vendor Management
+Route::get('/vendorManagement', 'VendorController@index');
+Route::post('/saveVendor', 'VendorController@store');
+
+// Recipe Management
+Route::get('/recipe-management', function () {
+    return view('Products.Recipe Management.recipe-management');
+});

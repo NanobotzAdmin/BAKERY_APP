@@ -29,7 +29,8 @@
     <!--Google fonts - Source Code Pro-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&family=Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&family=Ubuntu+Mono&display=swap"
+        rel="stylesheet">
     <!--Google fonts - Ubunto Mono-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,17 +54,17 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         #bell_icon:hover:before {
-          content: "\f0f3";
-          font-family: FontAwesome;
-          font-size: 1.1em;
-          transition: all 0.2s ease-in-out;
+            content: "\f0f3";
+            font-family: FontAwesome;
+            font-size: 1.1em;
+            transition: all 0.2s ease-in-out;
         }
 
         #bell_icon:before {
-          content: "\f0a2";
-          font-family: FontAwesome;
-          font-size: 1.1em;
-          color: #4a4846;
+            content: "\f0a2";
+            font-family: FontAwesome;
+            font-size: 1.1em;
+            color: #4a4846;
         }
 
         .dropdown-menu .dropdown-item:hover {
@@ -81,27 +82,38 @@
 
         /* ----LOADING GIF CSS---- */
         #loader {
-            display: none; /* Hide initially */
+            display: none;
+            /* Hide initially */
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8); /* Dark overlay with slight opacity */
-            z-index: 9999; /* Ensure it's on top of everything */
+            background-color: rgba(0, 0, 0, 0.8);
+            /* Dark overlay with slight opacity */
+            z-index: 9999;
+            /* Ensure it's on top of everything */
             justify-content: center;
             align-items: center;
         }
+
         #loader img {
-            width: 300px; /* Adjust loader size */
+            width: 300px;
+            /* Adjust loader size */
             height: 300px;
             animation: spin 2s linear infinite;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
-      </style>
+    </style>
 </head>
 
 <body>
@@ -121,19 +133,23 @@
                         </div>
                         <div class="logo-element" style="background: linear-gradient(to left, #ffffff, #ffffff);">
                             <img src="{{ $company_logo_without_bg }}" style="width: 65px; border-radius: 3%;">
-                            {{-- <h3 style="color: #293846; font-size: 22px; font-family: 'Lato', sans-serif; letter-spacing: 3px;">RF</h3> --}}
+                            {{-- <h3
+                                style="color: #293846; font-size: 22px; font-family: 'Lato', sans-serif; letter-spacing: 3px;">
+                                RF</h3> --}}
                         </div>
 
-        {{--        <div class="dropdown profile-element">
+                        {{-- <div class="dropdown profile-element">
                             <center>
                                 {{-- <img alt="image" class="rounded-circle" src="" /> --}}
-                        {{-- <a data-toggle="dropdown" class="dropdown-toggle" href="#"> --}}
-                        {{-- <span class="block m-t-xs font-bold">David Williams</span> --}}
-                        {{-- <span class="text-muted text-xs block">Art Director <b class="caret"></b></span> --}}
-                        {{-- </a> --}}
-                        {{-- </center> --}}
-                        {{-- </div> --}}
-        <!--        <div class="logo-element">
+                                {{-- <a data-toggle="dropdown" class="dropdown-toggle" href="#"> --}}
+                                    {{-- <span class="block m-t-xs font-bold">David Williams</span> --}}
+                                    {{-- <span class="text-muted text-xs block">Art Director <b
+                                            class="caret"></b></span> --}}
+                                    {{-- </a> --}}
+                                {{-- </center> --}}
+                            {{--
+                        </div> --}}
+                        <!--        <div class="logo-element">
                         IN+
                     </div>-->
                     </li>
@@ -158,41 +174,47 @@
                     {{-- --------------------- TOPICS --------------------- --}}
                     @foreach ($privilagesGroups as $groups)
                         @if ($groups->id == ucfirst($grupId))
-                            <li class="nav_ancor active" style="color: #ffae00; font-family: 'Lato', sans-serif; letter-spacing: 0.5px;">
-                                <a><i class="{{ $groups->menu_icon }}"></i> <span class="nav-label">{{ $groups->topic_name }}</span><span class="fa arrow"></span></a>
+                            <li class="nav_ancor active"
+                                style="color: #ffae00; font-family: 'Lato', sans-serif; letter-spacing: 0.5px;">
+                                <a><i class="{{ $groups->menu_icon }}"></i> <span
+                                        class="nav-label">{{ $groups->topic_name }}</span><span class="fa arrow"></span></a>
                         @else
-                            <li class="nav_ancor" style="color: #ffae00; font-family: 'Lato', sans-serif; letter-spacing: 0.5px;">
-                                <a><i class="{{ $groups->menu_icon }}"></i> <span class="nav-label">{{ $groups->topic_name }}</span><span class="fa arrow"></span></a>
-                        @endif
+                                <li class="nav_ancor"
+                                    style="color: #ffae00; font-family: 'Lato', sans-serif; letter-spacing: 0.5px;">
+                                    <a><i class="{{ $groups->menu_icon }}"></i> <span
+                                            class="nav-label">{{ $groups->topic_name }}</span><span class="fa arrow"></span></a>
+                            @endif
 
-                        @php
-                            $privilagesInterfaces = \DB::table('um_user_has_interface_components')
-                                ->select(
-                                    'pm_interfaces.path',
-                                    'pm_interfaces.interface_name',
-                                    'pm_interface_topic.topic_name',
-                                    'pm_interface_topic.id',
-                                    'pm_interfaces.id
-                        AS interfaceId',
-                                )
-                                ->distinct('um_user_has_interface_components.id')
-                                ->join('pm_interface_components', 'um_user_has_interface_components.pm_interface_components_id', '=', 'pm_interface_components.id')
-                                ->join('pm_interfaces', 'pm_interface_components.pm_interfaces_id', '=', 'pm_interfaces.id')
-                                ->join('pm_interface_topic', 'pm_interfaces.pm_interface_topic_id', '=', 'pm_interface_topic.id')
-                                ->where('um_user_has_interface_components.um_user_id', session('logged_user_id'))
-                                ->where('pm_interfaces.pm_interface_topic_id', $groups->id)
-                                ->get();
-                        @endphp
-                        <ul class="nav nav-second-level collapse">
-                            {{-- --------------------- INTERFACES --------------------- --}}
-                            @foreach ($privilagesInterfaces as $Interfaces)
-                                @if (ucfirst($pageId) == $Interfaces->interfaceId)
-                                    <li style="background-color: #ffae00;"><a href="/{{ $Interfaces->path }}" class="active">{{ $Interfaces->interface_name }}</a></li>
-                                @else
-                                    <li style="background-color: #3a2a21;"><a href="/{{ $Interfaces->path }}" class="">{{ $Interfaces->interface_name }}</a></li>
-                                @endif
-                            @endforeach
-                        </ul>
+                            @php
+                                $privilagesInterfaces = \DB::table('um_user_has_interface_components')
+                                    ->select(
+                                        'pm_interfaces.path',
+                                        'pm_interfaces.interface_name',
+                                        'pm_interface_topic.topic_name',
+                                        'pm_interface_topic.id',
+                                        'pm_interfaces.id
+                                                    AS interfaceId',
+                                    )
+                                    ->distinct('um_user_has_interface_components.id')
+                                    ->join('pm_interface_components', 'um_user_has_interface_components.pm_interface_components_id', '=', 'pm_interface_components.id')
+                                    ->join('pm_interfaces', 'pm_interface_components.pm_interfaces_id', '=', 'pm_interfaces.id')
+                                    ->join('pm_interface_topic', 'pm_interfaces.pm_interface_topic_id', '=', 'pm_interface_topic.id')
+                                    ->where('um_user_has_interface_components.um_user_id', session('logged_user_id'))
+                                    ->where('pm_interfaces.pm_interface_topic_id', $groups->id)
+                                    ->get();
+                            @endphp
+                            <ul class="nav nav-second-level collapse">
+                                {{-- --------------------- INTERFACES --------------------- --}}
+                                @foreach ($privilagesInterfaces as $Interfaces)
+                                    @if (ucfirst($pageId) == $Interfaces->interfaceId)
+                                        <li style="background-color: #ffae00;"><a href="/{{ $Interfaces->path }}"
+                                                class="active">{{ $Interfaces->interface_name }}</a></li>
+                                    @else
+                                        <li style="background-color: #3a2a21;"><a href="/{{ $Interfaces->path }}"
+                                                class="">{{ $Interfaces->interface_name }}</a></li>
+                                    @endif
+                                @endforeach
+                            </ul>
                         </li>
                     @endforeach
                 </ul>
@@ -207,7 +229,7 @@
                         <a class="navbar-minimalize minimalize-styl-2 btn" style="background-color: #ff9900" href="#"><i
                                 class="fa fa-bars" style="color: #ffffff"></i> </a>
 
-                {{-- <div class="row">
+                        {{-- <div class="row">
                             <div class="col-lg-12">
                                 <div class="ibox ">
                                     <div class="ibox-content">
@@ -216,25 +238,31 @@
                                 </div>
                             </div>
                         </div> --}}
-                {{-- </div> --}}
-                {{-- </nav> --}}
+                        {{--
+                    </div> --}}
+                    {{--
+                </nav> --}}
 
                 <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
                     <div class="navbar-header">
-                        <a class="navbar-minimalize minimalize-styl-2 btn" style="background-color: #ff9900"
-                            href="#"><i class="fa fa-bars" style="color: #ffffff"></i> </a>
+                        <a class="navbar-minimalize minimalize-styl-2 btn" style="background-color: #ff9900" href="#"><i
+                                class="fa fa-bars" style="color: #ffffff"></i> </a>
                     </div>
                     <ul class="nav navbar-top-links navbar-right">
                         <li style="padding-top: 3px;">
                             @php
-                               $logged_user = session('logged_user_id');
-                               $user_OBJ = App\User::find($logged_user);
+                                $logged_user = session('logged_user_id');
+                                $user_OBJ = App\User::find($logged_user);
                                @endphp
-                            <span class="m-r-sm welcome-message" style="color: #ff8c00; font-family: 'Comfortaa', cursive;"><i class="fa fa-user" aria-hidden="true"></i> {{ $user_OBJ->first_name }} {{ $user_OBJ->last_name }}</span>
+                            <span class="m-r-sm welcome-message"
+                                style="color: #ff8c00; font-family: 'Comfortaa', cursive;"><i class="fa fa-user"
+                                    aria-hidden="true"></i> {{ $user_OBJ->fist_name }} {{ $user_OBJ->last_name }}</span>
                         </li>
 
                         <li style="padding-top: 3px;">
-                            <span class="m-r-sm welcome-message" style="color: #000; font-family: 'Comfortaa', cursive;">Welcome to BAKERYMATE ePortal</span>
+                            <span class="m-r-sm welcome-message"
+                                style="color: #000; font-family: 'Comfortaa', cursive;">Welcome to BAKERYMATE
+                                ePortal</span>
                         </li>
 
                         <li>
@@ -250,15 +278,18 @@
                             @endphp
                             <span style="font-family: 'Comfortaa', cursive; font-weight: bold; font-size: 11px;">
                                 <img src="img/Calendar-icon.png" style="width: 16px; height: 16px;"> &nbsp;
-                                <span id="date_span" style="background: linear-gradient(to right, #ff8c00, #050300); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ $formattedDate }}</span>
+                                <span id="date_span"
+                                    style="background: linear-gradient(to right, #ff8c00, #050300); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ $formattedDate }}</span>
                             </span>&nbsp;&nbsp;
                             <!--CLOCK DISPLAY-->
                             @php
                                 $current_time = Carbon::now()->format('g:i A');
                             @endphp
-                            <span style="font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 13px; letter-spacing: 1px;">
+                            <span
+                                style="font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 13px; letter-spacing: 1px;">
                                 <img src="img/Clock-icon.png" style="width: 16px; height: 16px;"> &nbsp;
-                                <span id="clock_span" style="background: linear-gradient(to right, #ff8c00, #050300); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ $current_time }}</span>
+                                <span id="clock_span"
+                                    style="background: linear-gradient(to right, #ff8c00, #050300); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ $current_time }}</span>
                             </span>
                         </li>
 
@@ -267,16 +298,20 @@
                         </li>
 
                         <li class="dropdown" id="notificationArea">
-                            {{-- <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#" style="color: black">
-                                <i class="fa fa-bell-o" id="bell_icon" style="color: #4a4846;"></i> <span class="label label-primary roundedCircle">0</span>
+                            {{-- <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#"
+                                style="color: black">
+                                <i class="fa fa-bell-o" id="bell_icon" style="color: #4a4846;"></i> <span
+                                    class="label label-primary roundedCircle">0</span>
                             </a> --}}
                             <div style="margin: 13px;">
-                                <img style="margin: auto; z-index: 1000; position: absolute; scale: 0.13; margin-left: -105px; margin-top: -107px;" src="img/loader2.gif">
+                                <img style="margin: auto; z-index: 1000; position: absolute; scale: 0.13; margin-left: -105px; margin-top: -107px;"
+                                    src="img/loader2.gif">
                             </div>
                         </li>
 
                         <li>
-                            <a style="color: #6a6a6a;" href="/logout" onmouseover="this.style.color='black'" onmouseout="this.style.color='#6a6a6a'"><i class="fa fa-sign-out"></i> Log out</a>
+                            <a style="color: #6a6a6a;" href="/logout" onmouseover="this.style.color='black'"
+                                onmouseout="this.style.color='#6a6a6a'"><i class="fa fa-sign-out"></i> Log out</a>
                         </li>
                     </ul>
                 </nav>
@@ -306,13 +341,14 @@
     <script src="js/plugins/dataTables/dataTables.bootstrap4.min.js"></script>
     <script type="text/javascript" src="js/sweetalert.min.js"></script>
     <!-- Data picker -->
-    {{-- <script src="public/js/plugins/datapicker/bootstrap-datepicker.js"></script> --}}
+    {{--
+    <script src="public/js/plugins/datapicker/bootstrap-datepicker.js"></script> --}}
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     {{-- Date and Time refresh function --}}
     <script>
-        setInterval(function() {
+        setInterval(function () {
             var currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             var currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
 
@@ -323,10 +359,10 @@
 
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadNotifications();
 
-            $(document).on('submit', 'form', function() {
+            $(document).on('submit', 'form', function () {
                 $('button').attr('disabled', 'disabled');
                 showLder();
             });
@@ -342,15 +378,15 @@
                     data: {
                         "_token": csrf_token,
                     },
-                    beforeSend: function() {
+                    beforeSend: function () {
                         // showLder();
                     },
-                    complete: function() {
+                    complete: function () {
                         // hideLder();
                     },
-                    error: function(data) {
+                    error: function (data) {
                     },
-                    success: function(data) {
+                    success: function (data) {
                         $('#notificationArea').html(data);
                     }
                 });

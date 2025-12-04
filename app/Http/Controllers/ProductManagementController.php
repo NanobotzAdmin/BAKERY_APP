@@ -32,13 +32,13 @@ class ProductManagementController extends Controller
         $mainActiveCategory = MainCategory::where('is_active', STATIC_DATA_MODEL::$Active)->get();
         $subCategory = SubCategory::with('pmProductMainCategory')->get();
         $variations = \App\Variation::with('variationValues')->get();
-        
+
         // Get variation value types from STATIC_DATA_MODEL
         $variationValueTypes = [];
         foreach (\App\STATIC_DATA_MODEL::$variationValueType as $type) {
             $variationValueTypes[$type['id']] = $type['name'];
         }
-        
+
         return view('Products.category.categoryVariationManagement', compact('MainCategory', 'mainActiveCategory', 'subCategory', 'variations', 'variationValueTypes'));
     }
 
@@ -88,7 +88,7 @@ class ProductManagementController extends Controller
         ]);
 
         if (MainCategory::where('main_category_name', request('category'))->exists()) {
-            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color:red;"></i> <b>Saving Main Category Stopped</b> <br> &nbsp;&nbsp;&nbsp; <i>Main Category: "'.$request->category.'" already exists..</i>');
+            session()->flash('message', '<i class="fa fa-exclamation-circle" style="color:red;"></i> <b>Saving Main Category Stopped</b> <br> &nbsp;&nbsp;&nbsp; <i>Main Category: "' . $request->category . '" already exists..</i>');
             session()->flash('flash_message_type', 'alert-danger');
             return redirect()->back();
         } else {
@@ -114,7 +114,7 @@ class ProductManagementController extends Controller
                 $userActivity = new UserActivityManagementController();
                 $userActivity->saveActivity(STATIC_DATA_MODEL::$insert, "New Main Category " . $lastMainCategoryId->id . " Saved.");
 
-                session()->flash('message', '<i class="fa fa-check-circle"  style="color:green;"></i> <b>Main Category Saved</b> <br> &nbsp;&nbsp;&nbsp; <i>New Main Category: "'.$mainCategory->main_category_name.'" has been successfully saved.</i>');
+                session()->flash('message', '<i class="fa fa-check-circle"  style="color:green;"></i> <b>Main Category Saved</b> <br> &nbsp;&nbsp;&nbsp; <i>New Main Category: "' . $mainCategory->main_category_name . '" has been successfully saved.</i>');
                 session()->flash('flash_message_type', 'alert-success');
                 return redirect()->back();
             }
@@ -173,7 +173,7 @@ class ProductManagementController extends Controller
                 $userActivity = new UserActivityManagementController();
                 $userActivity->saveActivity(STATIC_DATA_MODEL::$update, "Update Main Category " . $request->MODAL_MAIN_CATEGORY_ID . " Updated.");
 
-                session()->flash('message', '<i class="fa fa-check-circle"></i> <b>Main Category Updated</b> <br> &nbsp;&nbsp;&nbsp; <i>Main Category: "'.$mainCategoryUpdate->main_category_name.'" has been successfully updated.</i>');
+                session()->flash('message', '<i class="fa fa-check-circle"></i> <b>Main Category Updated</b> <br> &nbsp;&nbsp;&nbsp; <i>Main Category: "' . $mainCategoryUpdate->main_category_name . '" has been successfully updated.</i>');
                 session()->flash('flash_message_type', 'alert-success');
                 return redirect()->back();
             }
@@ -217,7 +217,7 @@ class ProductManagementController extends Controller
                 $userActivity = new UserActivityManagementController();
                 $userActivity->saveActivity(STATIC_DATA_MODEL::$insert, "New Sub Category " . $lastsubCategoryId->id . " Saved.");
 
-                session()->flash('message', '<i class="fa fa-check-circle"></i> <b>Sub Category save successful</b> <br> &nbsp;&nbsp;&nbsp; <i>New Sub Category: "'.$request->subCategoryName.'" has been successfully saved.</i>');
+                session()->flash('message', '<i class="fa fa-check-circle"></i> <b>Sub Category save successful</b> <br> &nbsp;&nbsp;&nbsp; <i>New Sub Category: "' . $request->subCategoryName . '" has been successfully saved.</i>');
                 session()->flash('flash_message_type', 'alert-success');
                 return redirect()->back();
             }
@@ -261,7 +261,7 @@ class ProductManagementController extends Controller
                 $userActivity = new UserActivityManagementController();
                 $userActivity->saveActivity(STATIC_DATA_MODEL::$update, "Update Sub Category " . $request->MODAL_SUBCATEGORY_UPDATE_ID . " Updated.");
 
-                session()->flash('message', '<i class="fa fa-check-circle" style="color:green;"></i> <b>Sub Category update successful</b> <br> &nbsp;&nbsp;&nbsp; <i>Sub Category: "'.$subCategoryUpdate->sub_category_name.'" details have been successfully updated.</i>');
+                session()->flash('message', '<i class="fa fa-check-circle" style="color:green;"></i> <b>Sub Category update successful</b> <br> &nbsp;&nbsp;&nbsp; <i>Sub Category: "' . $subCategoryUpdate->sub_category_name . '" details have been successfully updated.</i>');
                 session()->flash('flash_message_type', 'alert-success');
                 return redirect()->back();
             }
@@ -277,8 +277,8 @@ class ProductManagementController extends Controller
     public function loadSubCategories(Request $request)
     {
         $products = SubCategory::where('pm_product_main_category_id', $request->MainCategory)
-                                ->where('is_active', STATIC_DATA_MODEL::$Active)
-                                ->get();
+            ->where('is_active', STATIC_DATA_MODEL::$Active)
+            ->get();
         return compact('products');
     }
 
@@ -498,8 +498,8 @@ class ProductManagementController extends Controller
     public function loadSubCategoriesByMainCategory(Request $request)
     {
         $subCategories = SubCategory::where('pm_product_main_category_id', $request->main_category_id)
-                                    ->where('is_active', STATIC_DATA_MODEL::$Active)
-                                    ->get();
+            ->where('is_active', STATIC_DATA_MODEL::$Active)
+            ->get();
         return response()->json(['status' => 'success', 'data' => $subCategories]);
     }
 
@@ -507,15 +507,15 @@ class ProductManagementController extends Controller
     public function loadVariationValuesByVariation(Request $request)
     {
         $variationValues = \App\VariationValue::where('pm_variation_id', $request->variation_id)
-                                              ->where('is_active', STATIC_DATA_MODEL::$Active)
-                                              ->get();
-        
+            ->where('is_active', STATIC_DATA_MODEL::$Active)
+            ->get();
+
         // Get variation value types from STATIC_DATA_MODEL
         $variationValueTypes = [];
         foreach (\App\STATIC_DATA_MODEL::$variationValueType as $type) {
             $variationValueTypes[$type['id']] = $type['name'];
         }
-        
+
         return response()->json(['status' => 'success', 'data' => $variationValues, 'types' => $variationValueTypes]);
     }
 
@@ -634,15 +634,35 @@ class ProductManagementController extends Controller
             ->where('status', STATIC_DATA_MODEL::$Active)
             ->get();
 
-        $rawMaterials = Product::with(['items' => function ($query) {
+        $semiFinishedProducts = ProductItem::with(['mainCategory', 'subCategory', 'variation', 'variationValue'])
+            ->where('pm_product_item_type_id', STATIC_DATA_MODEL::$productItemTypes[2]['id'])
+            ->where('status', STATIC_DATA_MODEL::$Active)
+            ->get();
+
+        $rawMaterials = Product::with([
+            'items' => function ($query) {
                 $query->with(['variation.variationValues', 'variationValue'])
                     ->where('status', STATIC_DATA_MODEL::$Active);
-            }])
+            }
+        ])
             ->where('pm_product_item_type_id', STATIC_DATA_MODEL::$productItemTypes[1]['id'])
             ->where('is_active', STATIC_DATA_MODEL::$Active)
             ->get()
             ->map(function ($rawMaterial) {
                 return $this->enrichProductWithVariationMetadata($rawMaterial);
+            });
+
+        $semiFinishedIngredients = Product::with([
+            'items' => function ($query) {
+                $query->with(['variation.variationValues', 'variationValue'])
+                    ->where('status', STATIC_DATA_MODEL::$Active);
+            }
+        ])
+            ->where('pm_product_item_type_id', STATIC_DATA_MODEL::$productItemTypes[2]['id'])
+            ->where('is_active', STATIC_DATA_MODEL::$Active)
+            ->get()
+            ->map(function ($product) {
+                return $this->enrichProductWithVariationMetadata($product);
             });
 
         $variationValueTypesCollection = collect(STATIC_DATA_MODEL::$variationValueType ?? [])
@@ -656,7 +676,7 @@ class ProductManagementController extends Controller
         $variationValueTypes = $variationValueTypesCollection->values()->all();
         $variationValueTypeMap = $variationValueTypesCollection->keyBy('id')->toArray();
 
-        return view('Products.ingredient.manageIngredients', compact('sellingProducts', 'rawMaterials', 'variationValueTypes', 'variationValueTypeMap'));
+        return view('Products.ingredient.manageIngredients', compact('sellingProducts', 'semiFinishedProducts', 'rawMaterials', 'semiFinishedIngredients', 'variationValueTypes', 'variationValueTypeMap'));
     }
 
     /**
@@ -745,10 +765,12 @@ class ProductManagementController extends Controller
                 $processedRawMaterialIds = [];
 
                 foreach ($productData['ingredients'] as $ingredientData) {
-                    $rawMaterial = Product::with(['items' => function ($query) {
+                    $rawMaterial = Product::with([
+                        'items' => function ($query) {
                             $query->with(['variation.variationValues', 'variationValue'])
                                 ->where('status', STATIC_DATA_MODEL::$Active);
-                        }])->find($ingredientData['raw_material_id']);
+                        }
+                    ])->find($ingredientData['raw_material_id']);
 
                     if (!$rawMaterial) {
                         throw new \Exception('Selected raw material not found.');
@@ -760,11 +782,11 @@ class ProductManagementController extends Controller
                     }
 
                     $rawMaterial = $this->enrichProductWithVariationMetadata($rawMaterial);
-                    $materialTypeIds = $rawMaterial->available_variation_type_ids ?? [];
+                    // $materialTypeIds = $rawMaterial->available_variation_type_ids ?? [];
 
-                    if (empty($materialTypeIds) || !in_array($typeId, $materialTypeIds, true)) {
-                        throw new \Exception('Selected variation value type is not available for the chosen raw material.');
-                    }
+                    // if (empty($materialTypeIds) || !in_array($typeId, $materialTypeIds, true)) {
+                    //     throw new \Exception('Selected variation value type is not available for the chosen raw material.');
+                    // }
 
                     $processedRawMaterialIds[] = (int) $rawMaterial->id;
                     $existingActiveRecord = $activeIngredients->get($rawMaterial->id);
@@ -830,10 +852,12 @@ class ProductManagementController extends Controller
             return $product;
         }
 
-        $product->loadMissing(['items' => function ($query) {
-            $query->with(['variation.variationValues', 'variationValue'])
-                ->where('status', STATIC_DATA_MODEL::$Active);
-        }]);
+        $product->loadMissing([
+            'items' => function ($query) {
+                $query->with(['variation.variationValues', 'variationValue'])
+                    ->where('status', STATIC_DATA_MODEL::$Active);
+            }
+        ]);
 
         $product->setAttribute('available_variation_type_ids', $this->collectVariationTypeIdsFromProduct($product));
 
@@ -863,12 +887,12 @@ class ProductManagementController extends Controller
 
             return $typeIds;
         })
-        ->filter()
-        ->unique()
-        ->values()
-        ->map(function ($id) {
-            return (int) $id;
-        })
-        ->all();
+            ->filter()
+            ->unique()
+            ->values()
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->all();
     }
 }
