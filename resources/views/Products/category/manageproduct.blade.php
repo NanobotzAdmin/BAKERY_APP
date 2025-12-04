@@ -21,17 +21,31 @@
             text-align: center;
             vertical-align: middle !important;
         }
-        
+
         .product-type-selling {
             background-color: #e7f3ff;
             border-left: 4px solid #007bff;
         }
-        
+
+        .product-type-semifinished {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+        }
+
+        .badge-semifinished {
+            background-color: #15850dff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+
         .product-type-raw {
             background-color: #fff4e6;
             border-left: 4px solid #ff9800;
         }
-        
+
         .badge-selling {
             background-color: #007bff;
             color: white;
@@ -39,7 +53,7 @@
             border-radius: 4px;
             font-weight: 500;
         }
-        
+
         .badge-raw {
             background-color: #ff9800;
             color: white;
@@ -96,14 +110,18 @@
                         </div>
                         <div class="col-sm-6 text-right">
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="filterProducts('all')">All</button>
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="filterProducts('selling')">Selling Products</button>
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="filterProducts('raw')">Raw Materials</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                    onclick="filterProducts('all')">All</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                    onclick="filterProducts('selling')">Selling Products</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                    onclick="filterProducts('raw')">Raw Materials</button>
                             </div>
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover dataTables-example" id="productsTable" style="font-family: 'Lato', sans-serif;">
+                        <table class="table table-bordered table-hover dataTables-example" id="productsTable"
+                            style="font-family: 'Lato', sans-serif;">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -121,59 +139,82 @@
                             </thead>
                             <tbody>
                                 <?php 
-                                    $id = 0;
-                                    $productItemTypes = [];
-                                    foreach (\App\STATIC_DATA_MODEL::$productItemTypes as $type) {
-                                        $productItemTypes[$type['id']] = $type['name'];
-                                    }
-                                ?>
+                                                                $id = 0;
+    $productItemTypes = [];
+    foreach (\App\STATIC_DATA_MODEL::$productItemTypes as $type) {
+        $productItemTypes[$type['id']] = $type['name'];
+    }
+                                                            ?>
                                 @foreach ($productItems as $productItem)
-                                    <?php 
-                                        $id++;
-                                        $productTypeId = $productItem->pm_product_item_type_id;
-                                        $productTypeName = isset($productItemTypes[$productTypeId]) ? $productItemTypes[$productTypeId] : 'N/A';
-                                        $isSelling = $productTypeId == 1;
-                                        $rowClass = $isSelling ? 'product-type-selling' : 'product-type-raw';
-                                    ?>
-                                    <tr class="{{ $rowClass }}" data-product-type="{{ $isSelling ? 'selling' : 'raw' }}">
-                                        <td>{{ $id }}</td>
-                                        <td>
-                                            @if($isSelling)
-                                                <span class="badge-selling">Selling Product</span>
-                                            @else
-                                                <span class="badge-raw">Raw Material</span>
-                                            @endif
-                                        </td>
-                                        <td><strong>{{ $productItem->product_item_name }}</strong></td>
-                                        <td>{{ $productItem->bin_code }}</td>
-                                        <td>{{ $productItem->mainCategory ? $productItem->mainCategory->main_category_name : 'N/A' }}</td>
-                                        <td>{{ $productItem->subCategory ? $productItem->subCategory->sub_category_name : 'N/A' }}</td>
-                                        <td>{{ $productItem->variation ? $productItem->variation->variation_name : 'N/A' }}</td>
-                                        <td>{{ $productItem->variationValue ? ($productItem->variationValue->variation_value_name ? $productItem->variationValue->variation_value_name : $productItem->variationValue->variation_value) : 'N/A' }}</td>
-                                        <td>
-                                            @if($isSelling && $productItem->selling_price)
-                                                {{ number_format($productItem->selling_price, 2) }}
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($isSelling && $productItem->cost_price)
-                                                {{ number_format($productItem->cost_price, 2) }}
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                        @if ($productItem->status == App\STATIC_DATA_MODEL::$Active)
-                                            <td style="min-width: 90px; color: #1ab394; text-align: center;"><span
-                                                    class="badge"
-                                                    style="color: #28a745; background-color: #e2f5e6;">Active</span></td>
-                                        @else
-                                            <td style="min-width: 90px; color: #e70000; text-align: center;"><span
-                                                    class="badge"
-                                                    style="color: #dc3545; background-color: #fceff0;">Inactive</span></td>
-                                        @endif
-                                    </tr>
+                                                            <?php
+                                    $id++;
+                                    $productTypeId = $productItem->pm_product_item_type_id;
+                                    $productTypeName = isset($productItemTypes[$productTypeId]) ? $productItemTypes[$productTypeId] : 'N/A';
+
+                                    $isSelling = ($productTypeId == 1);
+                                    $isRaw = ($productTypeId == 2); // Assuming type 2 is Raw Material based on original 'else' logic
+                                    $isSemiFinished = ($productTypeId == 3);
+
+                                    $rowClass = '';
+                                    $badgeText = '';
+                                    $badgeClass = '';
+
+                                    if ($isSelling) {
+                                        $rowClass = 'product-type-selling';
+                                        $badgeText = 'Selling Product';
+                                        $badgeClass = 'badge-selling';
+                                    } elseif ($isRaw) {
+                                        $rowClass = 'product-type-raw';
+                                        $badgeText = 'Raw Material';
+                                        $badgeClass = 'badge-raw';
+                                    } elseif ($isSemiFinished) {
+                                        $rowClass = 'product-type-semifinished'; // Add this class to your <style> block
+                                        $badgeText = 'Semi-Finished Product';
+                                        $badgeClass = 'badge-semifinished'; // Add this class to your <style> block
+                                    } else {
+                                        // Default for other types, if any
+                                        $rowClass = '';
+                                        $badgeText = 'Other';
+                                        $badgeClass = 'badge-secondary';
+                                    }
+                                                                                                                                                                                                                                                                    ?>
+                                                            <tr class="{{ $rowClass }}"
+                                                                data-product-type="{{ $isSelling ? 'selling' : ($isRaw ? 'raw' : ($isSemiFinished ? 'semifinished' : 'other')) }}">
+                                                                <td>{{ $id }}</td>
+                                                                <td>
+                                                                    <span class="{{ $badgeClass }}">{{ $badgeText }}</span>
+                                                                </td>
+                                                                <td><strong>{{ $productItem->product_item_name }}</strong></td>
+                                                                <td>{{ $productItem->bin_code }}</td>
+                                                                <td>{{ $productItem->mainCategory ? $productItem->mainCategory->main_category_name : 'N/A' }}
+                                                                </td>
+                                                                <td>{{ $productItem->subCategory ? $productItem->subCategory->sub_category_name : 'N/A' }}
+                                                                </td>
+                                                                <td>{{ $productItem->variation ? $productItem->variation->variation_name : 'N/A' }}</td>
+                                                                <td>{{ $productItem->variationValue ? ($productItem->variationValue->variation_value_name ? $productItem->variationValue->variation_value_name : $productItem->variationValue->variation_value) : 'N/A' }}
+                                                                </td>
+                                                                <td>
+                                                                    @if($isSelling && $productItem->selling_price)
+                                                                        {{ number_format($productItem->selling_price, 2) }}
+                                                                    @else
+                                                                        <span class="text-muted">-</span>
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if($isSelling && $productItem->cost_price)
+                                                                        {{ number_format($productItem->cost_price, 2) }}
+                                                                    @else
+                                                                        <span class="text-muted">-</span>
+                                                                    @endif
+                                                                </td>
+                                                                @if ($productItem->status == App\STATIC_DATA_MODEL::$Active)
+                                                                    <td style="min-width: 90px; color: #1ab394; text-align: center;"><span class="badge"
+                                                                            style="color: #28a745; background-color: #e2f5e6;">Active</span></td>
+                                                                @else
+                                                                    <td style="min-width: 90px; color: #e70000; text-align: center;"><span class="badge"
+                                                                            style="color: #dc3545; background-color: #fceff0;">Inactive</span></td>
+                                                                @endif
+                                                            </tr>
                                 @endforeach
                             </tbody>
                         </table>
@@ -187,7 +228,7 @@
 @section('footer')
     <script>
         var table;
-        $(document).ready(function() {
+        $(document).ready(function () {
             table = $('#productsTable').DataTable({
                 pageLength: 25,
                 responsive: true,

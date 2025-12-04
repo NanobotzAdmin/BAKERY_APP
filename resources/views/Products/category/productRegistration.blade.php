@@ -16,7 +16,7 @@
             border-radius: 6px;
             padding: 12px;
             background-color: #fcfcfc;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
         }
 
         .variant-config-card select {
@@ -75,251 +75,267 @@
             margin-right: 4px;
         }
     </style>
-<div class="container-fluid">
-    <div class="row wrapper border-bottom white-bg page-heading">
-        <div class="col-lg-12">
-            <h2 class="text-dark"><b>Product Registration</b></h2>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="/admindashboard">Home</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a>Product Management</a>
-                </li>
-                <li class="breadcrumb-item active">
-                    <strong>Product Registration</strong>
-                </li>
-            </ol>
-        </div>
-    </div>
-    <br>
-
-    <div class="row">
-        <div class="col-sm-12 p-0">
-            <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
-            @include('include.flash')
-            @include('include.errors')
-
-            <div class="ibox text-dark">
-                <div class="ibox-title">
-                    <h5>Product Registration Form</h5>
-                </div>
-                <div class="ibox-content">
-                    <form id="productRegistrationForm">
-                        {{ csrf_field() }}
-                        
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="product_name">Product Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="product_name" name="product_name" required autocomplete="off">
-                            </div>
-                            
-                            <div class="form-group col-md-6">
-                                <label for="product_code">Product Code <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="product_code" name="product_code" required autocomplete="off">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="pm_brands_id">Brand</label>
-                                <select class="form-control" id="pm_brands_id" name="pm_brands_id">
-                                    <option value="">-- Select Brand --</option>
-                                    @foreach ($brands as $brand)
-                                        <option value="{{ $brand->id }}">{{ $brand->label }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="product_description">Product Description</label>
-                                <textarea class="form-control" id="product_description" name="product_description" rows="3"></textarea>
-                            </div>
-                            
-                            <div class="form-group col-md-6">
-                                <label for="pm_product_item_type_id">Product Type <span class="text-danger">*</span></label>
-                                <select class="form-control" id="pm_product_item_type_id" name="pm_product_item_type_id" required>
-                                    <option value="">-- Select Product Type --</option>
-                                    @foreach ($productItemTypes as $id => $name)
-                                        <option value="{{ $id }}">{{ $name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="pm_product_main_category_id">Main Category <span class="text-danger">*</span></label>
-                                <select class="form-control" id="pm_product_main_category_id" name="pm_product_main_category_id" required>
-                                    <option value="">-- Select Main Category --</option>
-                                    @foreach ($mainCategories as $mainCategory)
-                                        <option value="{{ $mainCategory->id }}">{{ $mainCategory->main_category_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <div class="form-group col-md-6">
-                                <label for="pm_product_sub_category_id">Sub Category <span class="text-danger">*</span></label>
-                                <select class="form-control" id="pm_product_sub_category_id" name="pm_product_sub_category_id" required disabled>
-                                    <option value="">-- Select Main Category First --</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="mb-3"><strong>Product Variants Configuration</strong></label>
-                            <div class="row">
-                                @foreach ($variations as $variation)
-                                    <div class="col-md-4 mb-3">
-                                        <div class="variant-config-card">
-                                            <div class="variant-config-header d-flex justify-content-between align-items-center">
-                                                <label class="mb-0 text-uppercase small font-weight-bold text-muted">
-                                                    {{ $variation->variation_name }} <span class="text-danger">*</span>
-                                                </label>
-                                                <button type="button"
-                                                        class="btn btn-dark btn-xs add-variation-btn"
-                                                        data-variation-id="{{ $variation->id }}"
-                                                        data-variation-name="{{ $variation->variation_name }}"
-                                                        title='Manage Values for "{{ $variation->variation_name }}"'>
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            </div>
-                                            <select class="form-control variation-value-select"
-                                                    data-variation-id="{{ $variation->id }}"
-                                                    data-variation-name="{{ $variation->variation_name }}"
-                                                    data-placeholder="Select {{ $variation->variation_name }}"
-                                                    multiple>
-                                                <option value=""></option>
-                                            </select>
-                                            <div class="selected-variation-tags" data-variation-id="{{ $variation->id }}">
-                                                <span class="tag-placeholder">No values selected</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            
-                        </div>
-                        
-                        <div class="form-group text-right">
-                            <button type="button" class="btn btn-primary" id="generateProductsBtn">Generate Products</button>
-                        </div>
-                        
-                        <div id="generatedProductsContainer" style="display: none;">
-                            <h4>Generated Product Variations</h4>
-                            <div id="generatedProductsList"></div>
-                            <div class="form-group text-right">
-                                <button type="submit" class="btn btn-success" id="saveProductsBtn">Save All Products</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+    <div class="container-fluid">
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-12">
+                <h2 class="text-dark"><b>Product Registration</b></h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/admindashboard">Home</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a>Product Management</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Product Registration</strong>
+                    </li>
+                </ol>
             </div>
         </div>
-    </div>
-</div>
+        <br>
 
-<!-- Variation Values Modal -->
-<div class="modal fade" id="productVariationValuesModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="productVariationValuesModalLabel">Manage Variation Values</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="pr_current_variation_id">
-                <input type="hidden" id="pr_current_variation_name">
-                <div class="ibox">
+        <div class="row">
+            <div class="col-sm-12 p-0">
+                <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
+                @include('include.flash')
+                @include('include.errors')
+
+                <div class="ibox text-dark">
                     <div class="ibox-title">
-                        <h5>Add / Update Variation Value</h5>
+                        <h5>Product Registration Form</h5>
                     </div>
                     <div class="ibox-content">
-                        <form id="prVariationValueForm">
+                        <form id="productRegistrationForm">
                             {{ csrf_field() }}
-                            <input type="hidden" id="pr_variation_value_id">
-                            <input type="hidden" id="pr_pm_variation_id">
+
                             <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="pr_variation_value_name">Value Name (Optional)</label>
-                                    <input type="text" class="form-control" id="pr_variation_value_name" placeholder="e.g. Medium">
+                                <div class="form-group col-md-6">
+                                    <label for="product_name">Product Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="product_name" name="product_name" required
+                                        autocomplete="off">
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <label for="pr_variation_value">Value <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="pr_variation_value" placeholder="e.g. 500, Red" autocomplete="off" required>
+
+                                <div class="form-group col-md-6">
+                                    <label for="product_code">Product Code <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="product_code" name="product_code" required
+                                        autocomplete="off">
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <label for="pr_pm_variation_value_type_id">Unit Type <span class="text-danger">*</span></label>
-                                    <select class="form-control" id="pr_pm_variation_value_type_id" required>
-                                        <option value="">-- Select Unit --</option>
-                                        <option value="0">Default</option>
-                                        @foreach ($variationValueTypes as $id => $name)
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="pm_brands_id">Brand</label>
+                                    <select class="form-control" id="pm_brands_id" name="pm_brands_id">
+                                        <option value="">-- Select Brand --</option>
+                                        @foreach ($brands as $brand)
+                                            <option value="{{ $brand->id }}">{{ $brand->label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="product_description">Product Description</label>
+                                    <textarea class="form-control" id="product_description" name="product_description"
+                                        rows="3"></textarea>
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label for="pm_product_item_type_id">Product Type <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" id="pm_product_item_type_id" name="pm_product_item_type_id"
+                                        required>
+                                        <option value="">-- Select Product Type --</option>
+                                        @foreach ($productItemTypes as $id => $name)
                                             <option value="{{ $id }}">{{ $name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <button type="button" class="btn btn-secondary" id="pr_cancelVariationValueBtn">Reset</button>
-                                <button type="submit" class="btn btn-primary" id="pr_saveVariationValueBtn">Save Value</button>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="pm_product_main_category_id">Main Category <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" id="pm_product_main_category_id"
+                                        name="pm_product_main_category_id" required>
+                                        <option value="">-- Select Main Category --</option>
+                                        @foreach ($mainCategories as $mainCategory)
+                                            <option value="{{ $mainCategory->id }}">{{ $mainCategory->main_category_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label for="pm_product_sub_category_id">Sub Category <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" id="pm_product_sub_category_id"
+                                        name="pm_product_sub_category_id" required disabled>
+                                        <option value="">-- Select Main Category First --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="productVariantsConfig">
+                                <label class="mb-3"><strong>Product Variants Configuration</strong></label>
+                                <div class="row">
+                                    @foreach ($variations as $variation)
+                                        <div class="col-md-4 mb-3">
+                                            <div class="variant-config-card">
+                                                <div
+                                                    class="variant-config-header d-flex justify-content-between align-items-center">
+                                                    <label class="mb-0 text-uppercase small font-weight-bold text-muted">
+                                                        {{ $variation->variation_name }} <span class="text-danger">*</span>
+                                                    </label>
+                                                    <button type="button" class="btn btn-dark btn-xs add-variation-btn"
+                                                        data-variation-id="{{ $variation->id }}"
+                                                        data-variation-name="{{ $variation->variation_name }}"
+                                                        title='Manage Values for "{{ $variation->variation_name }}"'>
+                                                        <i class="fa fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                                <select class="form-control variation-value-select"
+                                                    data-variation-id="{{ $variation->id }}"
+                                                    data-variation-name="{{ $variation->variation_name }}"
+                                                    data-placeholder="Select {{ $variation->variation_name }}" multiple>
+                                                    <option value=""></option>
+                                                </select>
+                                                <div class="selected-variation-tags" data-variation-id="{{ $variation->id }}">
+                                                    <span class="tag-placeholder">No values selected</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                            </div>
+
+                            <div class="form-group text-right">
+                                <button type="button" class="btn btn-primary" id="generateProductsBtn">Generate
+                                    Products</button>
+                            </div>
+
+                            <div id="generatedProductsContainer" style="display: none;">
+                                <h4>Generated Product Variations</h4>
+                                <div id="generatedProductsList"></div>
+                                <div class="form-group text-right">
+                                    <button type="submit" class="btn btn-success" id="saveProductsBtn">Save All
+                                        Products</button>
+                                </div>
                             </div>
                         </form>
                     </div>
                 </div>
-
-                <div class="ibox">
-                    <div class="ibox-title">
-                        <h5>Existing Values</h5>
-                    </div>
-                    <div class="ibox-content">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped" id="prVariationValuesTable">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Value</th>
-                                        <th>Unit</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="prVariationValuesTableBody">
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">No values loaded</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Variation Values Modal -->
+    <div class="modal fade" id="productVariationValuesModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="productVariationValuesModalLabel">Manage Variation Values</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="pr_current_variation_id">
+                    <input type="hidden" id="pr_current_variation_name">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Add / Update Variation Value</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <form id="prVariationValueForm">
+                                {{ csrf_field() }}
+                                <input type="hidden" id="pr_variation_value_id">
+                                <input type="hidden" id="pr_pm_variation_id">
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="pr_variation_value_name">Value Name (Optional)</label>
+                                        <input type="text" class="form-control" id="pr_variation_value_name"
+                                            placeholder="e.g. Medium">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="pr_variation_value">Value <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="pr_variation_value"
+                                            placeholder="e.g. 500, Red" autocomplete="off" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="pr_pm_variation_value_type_id">Unit Type <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-control" id="pr_pm_variation_value_type_id" required>
+                                            <option value="">-- Select Unit --</option>
+                                            <option value="0">Default</option>
+                                            @foreach ($variationValueTypes as $id => $name)
+                                                <option value="{{ $id }}">{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <button type="button" class="btn btn-secondary"
+                                        id="pr_cancelVariationValueBtn">Reset</button>
+                                    <button type="submit" class="btn btn-primary" id="pr_saveVariationValueBtn">Save
+                                        Value</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Existing Values</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped" id="prVariationValuesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Value</th>
+                                            <th>Unit</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="prVariationValuesTableBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No values loaded</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('footer')
     <script>
         var variationValueTypesMap = @json($variationValueTypes);
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             if ($('#pm_product_item_type_id').val() == '1') {
                 $('.price-fields-container').addClass('show');
             }
-            
+
             initializeVariantSelects();
 
-            $('#pm_product_main_category_id').on('change', function() {
+            $('#pm_product_main_category_id').on('change', function () {
                 var mainCategoryId = $(this).val();
                 var csrf_token = $("#csrf_token").val();
-                
+
                 if (mainCategoryId) {
                     $.ajax({
                         url: "{{ url('/loadSubCategoriesByMainCategory') }}",
@@ -328,21 +344,21 @@
                             "_token": csrf_token,
                             "main_category_id": mainCategoryId
                         },
-                        beforeSend: function() {
+                        beforeSend: function () {
                             showLder();
                         },
-                        complete: function() {
+                        complete: function () {
                             hideLder();
                         },
-                        error: function() {
+                        error: function () {
                             hideLder();
                             swal("Error", "Failed to load sub categories", "error");
                         },
-                        success: function(response) {
+                        success: function (response) {
                             hideLder();
                             if (response.status === 'success') {
                                 var options = '<option value="">-- Select Sub Category --</option>';
-                                $.each(response.data, function(index, subCategory) {
+                                $.each(response.data, function (index, subCategory) {
                                     options += '<option value="' + subCategory.id + '">' + subCategory.sub_category_name + '</option>';
                                 });
                                 $('#pm_product_sub_category_id').html(options).prop('disabled', false);
@@ -355,8 +371,8 @@
                     $('#pm_product_sub_category_id').html('<option value="">-- Select Main Category First --</option>').prop('disabled', true);
                 }
             });
-            
-            $('#pm_product_item_type_id').on('change', function() {
+
+            $('#pm_product_item_type_id').on('change', function () {
                 var productTypeId = $(this).val();
                 if (productTypeId == '1') {
                     $('.price-fields-container').addClass('show');
@@ -364,35 +380,43 @@
                     $('.price-fields-container').removeClass('show');
                 }
             });
-            
-            $('#generateProductsBtn').on('click', function() {
+
+            $('#generateProductsBtn').on('click', function () {
                 var productName = $('#product_name').val();
                 var productCode = $('#product_code').val();
                 var productDescription = $('#product_description').val();
                 var productTypeId = $('#pm_product_item_type_id').val();
                 var mainCategoryId = $('#pm_product_main_category_id').val();
                 var subCategoryId = $('#pm_product_sub_category_id').val();
-                
+
                 if (!productName || !productCode || !productTypeId || !mainCategoryId || !subCategoryId) {
                     swal("Error", "Please fill all required fields", "error");
                     return;
                 }
-                
+
                 var selectedVariations = collectSelectedVariations();
-                
-                if (selectedVariations.length === 0) {
+
+                // Allow product type 3 to proceed without variations
+                if (productTypeId != '3' && selectedVariations.length === 0) {
                     swal("Error", "Please select at least one variation value", "error");
                     return;
                 }
-                
-                var combinations = generateCombinations(selectedVariations);
+
+                var combinations;
+                if (productTypeId == '3' && selectedVariations.length === 0) {
+                    // Generate a single product with no variations
+                    combinations = [[]];
+                } else {
+                    combinations = generateCombinations(selectedVariations);
+                }
+
                 displayGeneratedProducts(combinations, productName, productCode, productDescription, productTypeId, mainCategoryId, subCategoryId);
                 $('#generatedProductsContainer').show();
             });
-            
-            $('#productRegistrationForm').on('submit', function(e) {
+
+            $('#productRegistrationForm').on('submit', function (e) {
                 e.preventDefault();
-                
+
                 var productItems = [];
                 var hasError = false;
                 var csrf_token = $("#csrf_token").val();
@@ -406,23 +430,23 @@
                     pm_product_main_category_id: $('#pm_product_main_category_id').val(),
                     pm_product_sub_category_id: $('#pm_product_sub_category_id').val()
                 };
-                
-                $('.product-variation-row').each(function() {
+
+                $('.product-variation-row').each(function () {
                     var productName = $(this).find('.product-name').val();
                     var binCode = $(this).find('.product-code').val();
                     var sellingPrice = $(this).find('.selling-price').val();
                     var costPrice = $(this).find('.cost-price').val();
                     var combination = parseCombinationData($(this).find('.product-name'));
-                    
+
                     if (!productName || !binCode) {
                         swal("Error", "Product item name and bin code are required for all items", "error");
                         hasError = true;
                         return false;
                     }
-                    
+
                     sellingPrice = sellingPrice || 0;
                     costPrice = costPrice || 0;
-                    
+
                     if (sellingPrice && parseFloat(sellingPrice) < 0) {
                         swal("Error", "Selling price cannot be negative", "error");
                         hasError = true;
@@ -433,7 +457,7 @@
                         hasError = true;
                         return false;
                     }
-                    
+
                     productItems.push({
                         product_item_name: productName,
                         bin_code: binCode,
@@ -444,16 +468,16 @@
                         status: 1
                     });
                 });
-                
+
                 if (hasError) {
                     return;
                 }
-                
+
                 if (productItems.length === 0) {
                     swal("Error", "No product items to save", "error");
                     return;
                 }
-                
+
                 $.ajax({
                     url: "{{ url('/saveProductItems') }}",
                     type: "POST",
@@ -462,30 +486,30 @@
                         "product": productPayload,
                         "items": productItems
                     },
-                    beforeSend: function() {
+                    beforeSend: function () {
                         showLder();
                         $('#saveProductsBtn').prop('disabled', true);
                     },
-                    complete: function() {
+                    complete: function () {
                         hideLder();
                         $('#saveProductsBtn').prop('disabled', false);
                     },
-                    error: function() {
+                    error: function () {
                         hideLder();
                         $('#saveProductsBtn').prop('disabled', false);
                         swal("Error", "Failed to save products", "error");
                     },
-                    success: function(response) {
+                    success: function (response) {
                         hideLder();
                         $('#saveProductsBtn').prop('disabled', false);
-                        
+
                         if (response.status === 'success') {
                             swal({
                                 title: "Success",
                                 text: response.message,
                                 type: "success",
                                 showConfirmButton: true
-                            }, function() {
+                            }, function () {
                                 window.location.reload();
                             });
                         } else {
@@ -495,36 +519,45 @@
                 });
             });
 
-            $(document).on('click', '.add-variation-btn', function() {
+            $(document).on('change', '#pm_product_item_type_id', function () {
+                var productItemType = $(this).val();
+                if (productItemType == 3) {
+                    $('#productVariantsConfig').hide();
+                } else {
+                    $('#productVariantsConfig').show();
+                }
+            });
+
+            $(document).on('click', '.add-variation-btn', function () {
                 var variationId = $(this).data('variation-id');
                 var variationName = $(this).data('variation-name');
                 openProductVariationValuesModal(variationId, variationName);
             });
 
-            $('#prVariationValueForm').on('submit', function(e) {
+            $('#prVariationValueForm').on('submit', function (e) {
                 e.preventDefault();
                 savePrVariationValue();
             });
 
-            $('#pr_cancelVariationValueBtn').on('click', function() {
+            $('#pr_cancelVariationValueBtn').on('click', function () {
                 resetPrVariationValueForm();
             });
 
-            $(document).on('click', '.pr-edit-value', function() {
+            $(document).on('click', '.pr-edit-value', function () {
                 editPrVariationValue($(this).data('value-id'));
             });
 
-            $(document).on('click', '.pr-toggle-value', function() {
+            $(document).on('click', '.pr-toggle-value', function () {
                 togglePrVariationValueStatus($(this).data('value-id'));
             });
 
-            $(document).on('click', '.pr-delete-value', function() {
+            $(document).on('click', '.pr-delete-value', function () {
                 deletePrVariationValue($(this).data('value-id'));
             });
         });
 
         function initializeVariantSelects() {
-            $('.variation-value-select').each(function() {
+            $('.variation-value-select').each(function () {
                 var $select = $(this);
                 var placeholder = $select.data('placeholder');
 
@@ -537,7 +570,7 @@
                     });
                 }
 
-                $select.on('change', function() {
+                $select.on('change', function () {
                     updateSelectedTags($select);
                 });
 
@@ -558,24 +591,24 @@
                     "_token": csrf_token,
                     "variation_id": variationId
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     showLder();
                     $select.prop('disabled', true);
                 },
-                complete: function() {
+                complete: function () {
                     hideLder();
                     $select.prop('disabled', false);
                 },
-                error: function() {
+                error: function () {
                     hideLder();
                     swal("Error", "Failed to load variation values", "error");
                 },
-                success: function(response) {
+                success: function (response) {
                     hideLder();
                     if (response.status === 'success') {
                         var optionsHtml = '<option value=""></option>';
                         if (response.data.length > 0) {
-                            $.each(response.data, function(index, value) {
+                            $.each(response.data, function (index, value) {
                                 var unitName = response.types[value.pm_variation_value_type_id] || '';
                                 var displayName = value.variation_value_name ? value.variation_value_name : value.variation_value;
                                 if (unitName) {
@@ -587,7 +620,7 @@
                         $select.html(optionsHtml);
 
                         if (existingSelection.length > 0) {
-                            var filtered = existingSelection.filter(function(val) {
+                            var filtered = existingSelection.filter(function (val) {
                                 return $select.find('option[value="' + val + '"]').length > 0;
                             });
                             if (filtered.length > 0) {
@@ -608,12 +641,12 @@
 
         function updateSelectedTags($select) {
             var container = $select.closest('.variant-config-card').find('.selected-variation-tags');
-            var selectedData = $.fn.select2 ? $select.select2('data') : $select.find('option:selected').map(function() {
+            var selectedData = $.fn.select2 ? $select.select2('data') : $select.find('option:selected').map(function () {
                 return { id: $(this).val(), text: $(this).text() };
             }).get();
 
             var chips = '';
-            $.each(selectedData, function(_, item) {
+            $.each(selectedData, function (_, item) {
                 if (item.id) {
                     chips += '<span class="tag-chip">' + item.text + '</span>';
                 }
@@ -628,13 +661,13 @@
 
         function collectSelectedVariations() {
             var selectedVariations = [];
-            $('.variation-value-select').each(function() {
+            $('.variation-value-select').each(function () {
                 var $select = $(this);
                 var variationId = $select.data('variation-id');
                 var variationName = $select.data('variation-name');
                 var selectedValues = [];
 
-                $select.find('option:selected').each(function() {
+                $select.find('option:selected').each(function () {
                     var valueId = $(this).val();
                     if (!valueId) {
                         return;
@@ -698,11 +731,11 @@
         function displayGeneratedProducts(combinations, productName, productCode, productDescription, productTypeId, mainCategoryId, subCategoryId) {
             var html = '<div class="row">';
 
-            $.each(combinations, function(index, combination) {
+            $.each(combinations, function (index, combination) {
                 var combinationName = productName;
                 var combinationCode = productCode + '-' + (index + 1);
 
-                $.each(combination, function(i, item) {
+                $.each(combination, function (i, item) {
                     combinationName += ' ' + item.valueName;
                 });
 
@@ -762,17 +795,17 @@
                     "_token": csrf_token,
                     "variation_id": variationId
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     showLder();
                 },
-                complete: function() {
+                complete: function () {
                     hideLder();
                 },
-                error: function() {
+                error: function () {
                     hideLder();
                     swal("Error", "Failed to load variation values", "error");
                 },
-                success: function(response) {
+                success: function (response) {
                     hideLder();
                     if (response.status === 'success') {
                         renderPrVariationValues(response.data);
@@ -786,7 +819,7 @@
         function renderPrVariationValues(values) {
             var html = '';
             if (values.length > 0) {
-                $.each(values, function(index, value) {
+                $.each(values, function (index, value) {
                     var unitName = variationValueTypesMap[value.pm_variation_value_type_id] || 'N/A';
                     var statusBadge = value.is_active == 1
                         ? '<span class="badge" style="color:#28a745;background:#e2f5e6;">Active</span>'
@@ -830,19 +863,19 @@
                 url: url,
                 type: "POST",
                 data: payload,
-                beforeSend: function() {
+                beforeSend: function () {
                     showLder();
                     $('#pr_saveVariationValueBtn').prop('disabled', true);
                 },
-                complete: function() {
+                complete: function () {
                     hideLder();
                     $('#pr_saveVariationValueBtn').prop('disabled', false);
                 },
-                error: function() {
+                error: function () {
                     hideLder();
                     swal("Error", "Failed to save variation value", "error");
                 },
-                success: function(response) {
+                success: function (response) {
                     hideLder();
                     if (response.status === 'success') {
                         swal("Success", response.message, "success");
@@ -866,17 +899,17 @@
                     "_token": csrf_token,
                     "variation_value_id": valueId
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     showLder();
                 },
-                complete: function() {
+                complete: function () {
                     hideLder();
                 },
-                error: function() {
+                error: function () {
                     hideLder();
                     swal("Error", "Failed to load variation value", "error");
                 },
-                success: function(response) {
+                success: function (response) {
                     hideLder();
                     if (response.status === 'success') {
                         var value = response.data;
@@ -901,17 +934,17 @@
                     "_token": csrf_token,
                     "variation_value_id": valueId
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     showLder();
                 },
-                complete: function() {
+                complete: function () {
                     hideLder();
                 },
-                error: function() {
+                error: function () {
                     hideLder();
                     swal("Error", "Failed to toggle variation value status", "error");
                 },
-                success: function(response) {
+                success: function (response) {
                     hideLder();
                     if (response.status === 'success') {
                         swal("Success", response.message, "success");
@@ -936,7 +969,7 @@
                 cancelButtonText: "No, cancel!",
                 closeOnConfirm: false,
                 closeOnCancel: true
-            }, function(isConfirm) {
+            }, function (isConfirm) {
                 if (isConfirm) {
                     var csrf_token = $("#csrf_token").val();
                     $.ajax({
@@ -946,17 +979,17 @@
                             "_token": csrf_token,
                             "variation_value_id": valueId
                         },
-                        beforeSend: function() {
+                        beforeSend: function () {
                             showLder();
                         },
-                        complete: function() {
+                        complete: function () {
                             hideLder();
                         },
-                        error: function() {
+                        error: function () {
                             hideLder();
                             swal("Error", "Failed to delete variation value", "error");
                         },
-                        success: function(response) {
+                        success: function (response) {
                             hideLder();
                             if (response.status === 'success') {
                                 swal("Deleted!", response.message, "success");
