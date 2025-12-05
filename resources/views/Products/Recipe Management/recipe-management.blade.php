@@ -179,6 +179,7 @@
         .select2-container .select2-selection--single {
             height: 38px !important;
             border: 1px solid #ced4da;
+            z-index: 9999;
             /* BS4 default border color */
         }
 
@@ -207,6 +208,14 @@
         .modal-body-scrollable {
             max-height: 75vh;
             overflow-y: auto;
+        }
+
+        .modal-open .select2-container {
+            z-index: 9999;
+        }
+
+        .modal-open .select2-container .select2-dropdown {
+            z-index: 9999;
         }
     </style>
 
@@ -648,7 +657,7 @@
             // Handle Form Submission
             $('#createRecipeForm').on('submit', function (e) {
                 e.preventDefault();
-                
+
                 var formData = new FormData(this);
                 var submitBtn = $(this).find('button[type="submit"]');
                 var originalBtnText = submitBtn.html();
@@ -703,7 +712,7 @@
                             text: errorMessage,
                         });
                     },
-                    complete: function() {
+                    complete: function () {
                         // Reset button state
                         submitBtn.prop('disabled', false).html(originalBtnText);
                     }
@@ -723,30 +732,30 @@
             });
 
             const row = `
-                        <tr id="ing-row-${rowId}">
-                            <td>
-                                <select class="form-control select2-dynamic" name="ingredients[]" style="width: 100%;" required>
-                                    <option value="">Select ingredient...</option>
-                                    @foreach($products as $product)
-                                        @if($product->pm_product_item_type_id == 2 || $product->pm_product_item_type_id == 3)
-                                            <option value="{{ $product->id }}">{{ $product->product_item_name }}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td><input type="number" class="form-control form-control-sm" name="quantities[]" placeholder="0" required></td>
-                            <td>
-                                <select class="form-control form-control-sm" name="units[]">
-                                    ${unitOptions}
-                                </select>
-                            </td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm text-danger" onclick="removeIngredientRow('${rowId}')">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        `;
+                                            <tr id="ing-row-${rowId}">
+                                                <td>
+                                                    <select class="form-control select2-dynamic" name="ingredients[]" style="width: 100%;" required>
+                                                        <option value="">Select ingredient...</option>
+                                                        @foreach($products as $product)
+                                                            @if($product->pm_product_item_type_id == 2 || $product->pm_product_item_type_id == 3)
+                                                                <option value="{{ $product->id }}">{{ $product->product_item_name }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </td>
+                                                <td><input type="number" class="form-control form-control-sm" name="quantities[]" placeholder="0" required></td>
+                                                <td>
+                                                    <select class="form-control form-control-sm" name="units[]">
+                                                        ${unitOptions}
+                                                    </select>
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-sm text-danger" onclick="removeIngredientRow('${rowId}')">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            `;
             $('#ingredientsTable tbody').append(row);
 
             // Re-init Select2 for the new row (Bootstrap 4 theme)
@@ -765,18 +774,18 @@
             const stepId = Date.now();
             const stepCount = $('#stepsContainer .step-card').length + 1;
             const step = `
-                                <div class="step-card mb-2" id="step-${stepId}">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="fw-bold small text-muted">Step <span class="step-number">${stepCount}</span></span>
-                                        <div>
-                                            <button type="button" class="btn btn-sm text-secondary" onclick="moveStepUp('${stepId}')"><i class="fa fa-arrow-up"></i></button>
-                                            <button type="button" class="btn btn-sm text-secondary" onclick="moveStepDown('${stepId}')"><i class="fa fa-arrow-down"></i></button>
-                                            <button type="button" class="btn btn-sm text-danger" onclick="removeStep('${stepId}')"><i class="fa fa-trash"></i></button>
-                                        </div>
-                                    </div>
-                                    <textarea class="form-control" name="steps[]" rows="2" placeholder="Describe this step..." required></textarea>
-                                </div>
-                                `;
+                                                    <div class="step-card mb-2" id="step-${stepId}">
+                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <span class="fw-bold small text-muted">Step <span class="step-number">${stepCount}</span></span>
+                                                            <div>
+                                                                <button type="button" class="btn btn-sm text-secondary" onclick="moveStepUp('${stepId}')"><i class="fa fa-arrow-up"></i></button>
+                                                                <button type="button" class="btn btn-sm text-secondary" onclick="moveStepDown('${stepId}')"><i class="fa fa-arrow-down"></i></button>
+                                                                <button type="button" class="btn btn-sm text-danger" onclick="removeStep('${stepId}')"><i class="fa fa-trash"></i></button>
+                                                            </div>
+                                                        </div>
+                                                        <textarea class="form-control" name="steps[]" rows="2" placeholder="Describe this step..." required></textarea>
+                                                    </div>
+                                                    `;
             $('#stepsContainer').append(step);
         }
 
@@ -843,12 +852,12 @@
                     const unitName = unitType ? unitType.name : '';
 
                     ingredientsHtml += `
-                                <tr>
-                                    <td>${ing.product_item ? ing.product_item.product_item_name : 'Unknown Item'}</td>
-                                    <td>${ing.quantity}</td>
-                                    <td>${unitName}</td>
-                                </tr>
-                            `;
+                                                    <tr>
+                                                        <td>${ing.product_item ? ing.product_item.product_item_name : 'Unknown Item'}</td>
+                                                        <td>${ing.quantity}</td>
+                                                        <td>${unitName}</td>
+                                                    </tr>
+                                                `;
                 });
             } else {
                 ingredientsHtml = '<tr><td colspan="3" class="text-center text-muted">No ingredients found</td></tr>';
@@ -860,15 +869,15 @@
             if (recipe.steps && recipe.steps.length > 0) {
                 recipe.steps.forEach(step => {
                     stepsHtml += `
-                                <div class="d-flex mb-3">
-                                    <div class="mr-3">
-                                        <span class="badge badge-purple rounded-circle" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">${step.step_number}</span>
-                                    </div>
-                                    <div>
-                                        <p class="mb-0 small text-dark">${step.instruction}</p>
-                                    </div>
-                                </div>
-                            `;
+                                                    <div class="d-flex mb-3">
+                                                        <div class="mr-3">
+                                                            <span class="badge badge-purple rounded-circle" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">${step.step_number}</span>
+                                                        </div>
+                                                        <div>
+                                                            <p class="mb-0 small text-dark">${step.instruction}</p>
+                                                        </div>
+                                                    </div>
+                                                `;
                 });
             } else {
                 stepsHtml = '<p class="text-muted small">No steps found</p>';
