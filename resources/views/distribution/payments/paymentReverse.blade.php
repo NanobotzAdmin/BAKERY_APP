@@ -10,14 +10,15 @@
 
 @section('content')
 
-<style>
-    /*placeholder css*/
-    #dateFrom::placeholder, #dateTo::placeholder {
-        font-size: 11px;
-        color: #bfbfbf;
-        opacity: 0.7;
-    }
-</style>
+    <style>
+        /*placeholder css*/
+        #dateFrom::placeholder,
+        #dateTo::placeholder {
+            font-size: 11px;
+            color: #bfbfbf;
+            opacity: 0.7;
+        }
+    </style>
 
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-12">
@@ -46,7 +47,7 @@
                 <div class="ibox-content">
                     <div class="form-group row">
                         <div class="form-group col-md-4">
-                            <label for="">Customer</label>
+                            <label for="customer">Customer</label>
                             <select class="select2_demo_3 form-control" id="customer">
                                 <option value="0">-- Select One --</option>
                                 @foreach ($customerList as $customers)
@@ -57,31 +58,38 @@
                         </div>
 
                         {{-- <div class="form-group col-md-3">
-                        <label for="">Invoice Type</label>
-                        <select class="select2_demo_3 form-control" id="invoiceType">
-                            <option value="ALL">Select One </option>
-                            <option value="0">Pending </option>
-                            <option value="1">Completed </option>
-                        </select>
-                    </div> --}}
+                            <label for="">Invoice Type</label>
+                            <select class="select2_demo_3 form-control" id="invoiceType">
+                                <option value="ALL">Select One </option>
+                                <option value="0">Pending </option>
+                                <option value="1">Completed </option>
+                            </select>
+                        </div> --}}
 
                         <div class="form-group col-md-2" id="data_1">
                             <label class="font-normal">Date From</label>
                             <div class="input-group date">
-                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control form-control-sm" value="" id="dateFrom" maxlength="10" oninput="this.value = this.value.replace(/[^0-9/]/g, '').replace(/(\..*?)\..*/g, '$1');" placeholder="MM/DD/YYYY" autocomplete="off">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text"
+                                    class="form-control form-control-sm" value="" id="dateFrom" maxlength="10"
+                                    oninput="this.value = this.value.replace(/[^0-9/]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                                    placeholder="MM/DD/YYYY" autocomplete="off">
                             </div>
                         </div>
 
                         <div class="form-group col-md-2" id="data_1">
                             <label class="font-normal">Date To</label>
                             <div class="input-group date">
-                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control form-control-sm" value="" id="dateTo" maxlength="10" oninput="this.value = this.value.replace(/[^0-9/]/g, '').replace(/(\..*?)\..*/g, '$1');" placeholder="MM/DD/YYYY" autocomplete="off">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text"
+                                    class="form-control form-control-sm" value="" id="dateTo" maxlength="10"
+                                    oninput="this.value = this.value.replace(/[^0-9/]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                                    placeholder="MM/DD/YYYY" autocomplete="off">
                             </div>
                         </div>
 
                         <div class="form-group col-md-1">
                             <label class="font-normal">&nbsp;</label><br>
-                            <button type="button" class="btn btn-info btn-sm" onclick="searchInvoices()"><i class="fa fa-search" aria-hidden="true"></i> &nbsp; Search</button>
+                            <button type="button" class="btn btn-info btn-sm" onclick="searchInvoices()"><i
+                                    class="fa fa-search" aria-hidden="true"></i> &nbsp; Search</button>
                         </div>
 
                     </div>
@@ -100,8 +108,7 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="view" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="view" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="loadInvoiceModalArea">
 
@@ -138,14 +145,14 @@
                     "dateFrom": $("#dateFrom").val(),
                     "dateTo": $("#dateTo").val(),
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     showLder();
                 },
-                complete: function() {
+                complete: function () {
                 },
-                error: function(data) {
+                error: function (data) {
                 },
-                success: function(data) {
+                success: function (data) {
                     // hideLder();
                     $("#tblReverseInvoices").html(data);
                 }
